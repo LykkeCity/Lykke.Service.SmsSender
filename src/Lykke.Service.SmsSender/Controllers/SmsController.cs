@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net;
-using System.Threading.Tasks;
+using Common;
 using Common.Log;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Cqrs;
@@ -30,7 +30,7 @@ namespace Lykke.Service.SmsSender.Controllers
         [SwaggerOperation("Send")]
         [ProducesResponseType(typeof(void), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorResponse), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SendSms([FromBody]SmsModel model)
+        public IActionResult SendSms([FromBody]SmsModel model)
         {
             if (model == null)
                 return BadRequest("Model is null");
@@ -45,7 +45,7 @@ namespace Lykke.Service.SmsSender.Controllers
             }
             catch (Exception ex)
             {
-                await _log.WriteErrorAsync(nameof(SmsController), nameof(SendSms), ex);
+                _log.WriteError(nameof(SendSms), new { Phone = model.Phone.SanitizePhone()}, ex);
                 return BadRequest(ErrorResponse.Create("Technical problems"));
             }
         }

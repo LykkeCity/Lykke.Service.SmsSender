@@ -1,10 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Common;
+﻿using System.Threading.Tasks;
 using Common.Log;
 using Lykke.Cqrs;
 using Lykke.Service.SmsSender.Core.Domain.SmsRepository;
-using Lykke.Service.SmsSender.Core.Settings.ServiceSettings;
 using Lykke.Service.SmsSender.Models;
 using Lykke.Service.SmsSender.Sagas.Commands;
 using Microsoft.AspNetCore.Mvc;
@@ -42,7 +39,7 @@ namespace Lykke.Service.SmsSender.Controllers
 
                 if (sms == null)
                 {
-                    await _log.WriteWarningAsync(nameof(CallbackController), nameof(TwilioCallback), model.ToJson());
+                    _log.WriteWarning(nameof(TwilioCallback), model, $"Sms message with messageId = {model.MessageSid} not found");
                     return Ok();
                 }
                 
@@ -56,7 +53,7 @@ namespace Lykke.Service.SmsSender.Controllers
                         _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.MessageStatus}"}, "sms", "sms");
                         break;
                     default:
-                        await _log.WriteWarningAsync(nameof(CallbackController), nameof(TwilioCallback), model.ToJson(), $"status = {model.MessageStatus}");
+                        _log.WriteWarning(nameof(TwilioCallback), model, $"status = {model.MessageStatus}");
                         break;
                 }
             }
@@ -75,7 +72,7 @@ namespace Lykke.Service.SmsSender.Controllers
 
                 if (sms == null)
                 {
-                    await _log.WriteWarningAsync(nameof(CallbackController), nameof(NexmoCallback), model.ToJson());
+                    _log.WriteWarning(nameof(NexmoCallback), model, $"Sms message with messageId = {model.MessageId} not found");
                     return Ok();
                 }
                 

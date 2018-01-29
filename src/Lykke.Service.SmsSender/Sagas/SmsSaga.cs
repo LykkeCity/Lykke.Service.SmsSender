@@ -18,7 +18,7 @@ namespace Lykke.Service.SmsSender.Sagas
         
         public async Task Handle(SmsProviderProcessed evt, ICommandSender commandSender)
         {
-            await _log.WriteInfoAsync(nameof(SmsSaga), nameof(SmsProviderProcessed), $"{evt.Phone.SanitizePhone()}", $"Sms processed. Sending using {evt.Provider.ToString()}, country code: {evt.CountryCode}");
+            _log.WriteInfo(nameof(SmsProviderProcessed), new { Phone = evt.Phone.SanitizePhone(), evt.Id, evt.Provider, evt.CountryCode}, "Sms processed");
 
             var sendSmsCommand = new SendSmsCommand
             {
@@ -34,8 +34,10 @@ namespace Lykke.Service.SmsSender.Sagas
         
         public async Task Handle(SmsMessageDeliveryFailed evt, ICommandSender commandSender)
         {
-            await _log.WriteInfoAsync(nameof(SmsSaga), nameof(SmsMessageDeliveryFailed), 
-                $"{evt.Message.Phone.SanitizePhone()}", $"Retrying sms delivery. Sending using {evt.Message.Provider.ToString()}, country code: {evt.Message.CountryCode}");
+            _log.WriteInfo(nameof(SmsMessageDeliveryFailed), new
+            {
+                Phone = evt.Message.Phone.SanitizePhone(), evt.Message.Id, evt.Message.Provider, evt.Message.CountryCode
+            }, $"Retrying sms delivery. Sending using {evt.Message.Provider.ToString()}, country code: {evt.Message.CountryCode}");
 
             var sendSmsCommand = new SendSmsCommand
             {
