@@ -20,14 +20,14 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
             _settings = settings;
         }
 
-        public async Task<string> SendSmsAsync(string phone, string message)
+        public async Task<string> SendSmsAsync(string phone, string message, string countryCode)
         {
             var response = await $"{BaseApiUrl}/Accounts/{_settings.ApiKey}/Messages.json"
                 .WithBasicAuth(_settings.ApiKey, _settings.ApiSecret)
                 .PostUrlEncodedAsync(new
                 {
                     To = phone,
-                    From = _settings.From,
+                    From = _settings.GetFrom(countryCode),
                     Body = message,
                     StatusCallback = $"{_baseUrl}/callback/twilio"
                 }).ReceiveJson<TwilioResponse>();

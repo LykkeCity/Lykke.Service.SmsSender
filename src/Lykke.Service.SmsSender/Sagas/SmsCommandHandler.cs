@@ -89,7 +89,7 @@ namespace Lykke.Service.SmsSender.Sagas
             
             try
             {
-                string messageId = await sender.SendSmsAsync(sendSmsCommand.Phone, sendSmsCommand.Message);
+                string messageId = await sender.SendSmsAsync(sendSmsCommand.Phone, sendSmsCommand.Message, sendSmsCommand.CountryCode);
 
                 if (!string.IsNullOrEmpty(messageId))
                 {

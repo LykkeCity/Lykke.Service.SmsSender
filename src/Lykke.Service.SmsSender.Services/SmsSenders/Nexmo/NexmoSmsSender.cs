@@ -20,14 +20,13 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
             _settings = settings;
         }
 
-        public async Task<string> SendSmsAsync(string phone, string message)
+        public async Task<string> SendSmsAsync(string phone, string message, string countryCode)
         {
-            return "test";
             var response = await $"{BaseUrl}/sms/json"
                 .PostUrlEncodedAsync(new
                 {
                     to = phone,
-                    from = _settings.From,
+                    from = _settings.GetFrom(countryCode),
                     text = message,
                     api_key = _settings.ApiKey,
                     api_secret = _settings.ApiSecret,
