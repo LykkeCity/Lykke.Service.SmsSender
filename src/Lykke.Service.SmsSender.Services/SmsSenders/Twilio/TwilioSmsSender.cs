@@ -3,8 +3,6 @@ using Flurl;
 using Flurl.Http;
 using Lykke.Service.SmsSender.Core.Services;
 using Lykke.Service.SmsSender.Core.Settings.ServiceSettings.SenderSettings;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
 {

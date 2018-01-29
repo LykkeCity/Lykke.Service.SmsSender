@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Common.Log;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Cqrs;
-using Lykke.Service.SmsSender.Client;
 using Lykke.Service.SmsSender.Extensions;
 using Lykke.Service.SmsSender.Models;
 using Lykke.Service.SmsSender.Sagas.Commands;
