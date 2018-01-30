@@ -28,14 +28,12 @@ namespace Lykke.Service.SmsSender.Controllers
         }
 
         [HttpPost]
-        [HttpGet]
         [Route("twilio")]
-        public async Task<IActionResult> TwilioCallback([FromBody] TwilioCallbackModel model)
+        public async Task<IActionResult> TwilioCallback([FromForm] TwilioCallbackModel model)
         {
             if (!string.IsNullOrEmpty(model?.MessageSid))
             {
                 var sms = await _smsRepository.GetByMessageIdAsync(model.MessageSid);
-
 
                 if (sms == null)
                 {

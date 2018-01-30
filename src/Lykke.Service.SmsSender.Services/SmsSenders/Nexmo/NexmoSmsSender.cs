@@ -27,7 +27,9 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
 
         public async Task<string> SendSmsAsync(string phone, string message, string countryCode)
         {
-            var response = await $"{BaseUrl}/sms/json"
+            try
+            {
+                var response = await $"{BaseUrl}/sms/json"
                 .PostUrlEncodedAsync(new
                 {
                     to = phone,
@@ -38,25 +40,29 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
                     callback = $"{_baseUrl}/callback/nexmo"
                 }).ReceiveJson<NexmoResponse>();
 
-            if (response.MessagesCount > 0)
-            {
-                var errors = response.Messages
-                    .Where(item => item.Status != NexmoStatus.Ok)
-                    .Select(item => new
-                        {
-                            Phone = item.To.SanitizePhone(),
-                            item.MessagePrice,
-                            item.RemainingBalance,
-                            item.Status
-                        })
-                    .ToList();
-
-                if (errors.Any())
+                if (response.MessagesCount > 0)
                 {
-                    _log.WriteWarning(nameof(SendSmsAsync), errors, "nexmo error messages");
-                }
+                    var errors = response.Messages
+                        .Where(item => item.Status != NexmoStatus.Ok)
+                        .Select(item => new
+                            {
+                                Phone = phone.SanitizePhone(),
+                                item.Status,
+                                item.Error
+                            })
+                        .ToList();
+
+                    if (errors.Any())
+                    {
+                        _log.WriteWarning(nameof(SendSmsAsync), errors, "nexmo error messages");
+                    }
                 
-                return response.Messages.FirstOrDefault(item => item.Status == NexmoStatus.Ok)?.MessageId;
+                    return response.Messages.FirstOrDefault(item => item.Status == NexmoStatus.Ok)?.MessageId;
+                }
+            }
+            catch (FlurlHttpException ex)
+            {
+                _log.WriteWarning(nameof(SendSmsAsync), ex.Message, "nexmo: error sending sms", ex);
             }
 
             return null;

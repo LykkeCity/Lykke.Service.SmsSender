@@ -12,5 +12,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
         public decimal RemainingBalance { get; set; }
         [JsonProperty("message-price")]
         public decimal MessagePrice { get; set; }
+        [JsonProperty("error-text")]
+        public string Error { get; set; }
     }
 }

@@ -39,13 +39,13 @@ namespace Lykke.Service.SmsSender.Sagas
             _log = log;
         }
 
-        public async Task<CommandHandlingResult> Handle(ProcessSmsCommand processSmsCommand, IEventPublisher eventPublisher)
+        public async Task<CommandHandlingResult> Handle(ProcessSmsCommand command, IEventPublisher eventPublisher)
         {
-            _log.WriteInfo(nameof(ProcessSmsCommand), new { Phone = processSmsCommand.Phone.SanitizePhone() }, "Processing sms");
+            _log.WriteInfo(nameof(ProcessSmsCommand), new { Phone = command.Phone.SanitizePhone() }, "Processing sms");
 
             var phoneUtils = PhoneNumberUtil.GetInstance();
 
-            var phone = phoneUtils.Parse(processSmsCommand.Phone, null);
+            var phone = phoneUtils.Parse(command.Phone, null);
 
             if (phone != null && phoneUtils.IsValidNumber(phone))
             {
@@ -55,15 +55,15 @@ namespace Lykke.Service.SmsSender.Sagas
                 string id = await _smsRepository.AddAsync(new SmsMessage
                 {
                     CountryCode = countryCode,
-                    Message = processSmsCommand.Message,
-                    Phone = processSmsCommand.Phone,
+                    Message = command.Message,
+                    Phone = command.Phone,
                     Provider = provider
                 });
 
                 eventPublisher.PublishEvent(new SmsProviderProcessed
                 {
-                    Phone = processSmsCommand.Phone,
-                    Message = processSmsCommand.Message,
+                    Phone = command.Phone,
+                    Message = command.Message,
                     Provider = provider,
                     CountryCode = countryCode,
                     Id = id
@@ -73,44 +73,55 @@ namespace Lykke.Service.SmsSender.Sagas
             return CommandHandlingResult.Ok();
         }
 
-        public async Task<CommandHandlingResult> Handle(SendSmsCommand sendSmsCommand, IEventPublisher eventPublisher)
+        public async Task<CommandHandlingResult> Handle(SendSmsCommand command, IEventPublisher eventPublisher)
         {
-            var message = await _smsRepository.GetAsync(sendSmsCommand.Id);
+            var message = await _smsRepository.GetAsync(command.Id);
 
+            if (message == null)
+            {
+                _log.WriteWarning(nameof(SendSmsCommand), new { Phone = command.Phone.SanitizePhone(), command.Id, command.Provider, command.CountryCode }, 
+                    $"Sms message with messageId = {command.Id} not found");
+                return CommandHandlingResult.Ok();
+            }
+            
             if (message.IsExpired(_smsSettings.SmsRetryTimeout))
             {
                 await _smsRepository.DeleteAsync(message.Id, message.MessageId);
                 return CommandHandlingResult.Ok();
             }
             
-            var sender = _smsSenderFactory.GetSender(sendSmsCommand.Provider);
+            var sender = _smsSenderFactory.GetSender(command.Provider);
 
-            _log.WriteInfo(nameof(SendSmsCommand), new { Phone = sendSmsCommand.Phone.SanitizePhone(), sendSmsCommand.Id, sendSmsCommand.Provider, sendSmsCommand.CountryCode }, "Sending sms");
+            _log.WriteInfo(nameof(SendSmsCommand), new { Phone = command.Phone.SanitizePhone(), command.Id, command.Provider, command.CountryCode }, "Sending sms");
             
             try
             {
-                string messageId = await sender.SendSmsAsync(sendSmsCommand.Phone, sendSmsCommand.Message, sendSmsCommand.CountryCode);
+                string messageId = await sender.SendSmsAsync(command.Phone, command.Message, command.CountryCode);
 
                 if (!string.IsNullOrEmpty(messageId))
                 {
-                    await _smsRepository.SetMessageIdAsync(messageId, sendSmsCommand.Id);
+                    await _smsRepository.SetMessageIdAsync(messageId, command.Id);
+                }
+                else
+                {
+                    await _smsRepository.DeleteAsync(command.Id, messageId);
                 }
             }
             catch (Exception)
             {
-                await _smsProviderInfoRepository.AddAsync(sendSmsCommand.Provider, sendSmsCommand.CountryCode, SmsDeliveryStatus.Failed);
+                await _smsProviderInfoRepository.AddAsync(command.Provider, command.CountryCode, SmsDeliveryStatus.Failed);
                 return CommandHandlingResult.Fail(TimeSpan.FromSeconds(5));
             }
 
             return CommandHandlingResult.Ok();
         }
 
-        public async Task<CommandHandlingResult> Handle(SmsDeliveredCommand smsDeliveredCommand, IEventPublisher eventPublisher)
+        public async Task<CommandHandlingResult> Handle(SmsDeliveredCommand command, IEventPublisher eventPublisher)
         {
-            _log.WriteInfo(nameof(SmsDeliveredCommand), new { Phone = smsDeliveredCommand.Message.Phone.SanitizePhone(),  smsDeliveredCommand.Message.Id,
-                smsDeliveredCommand.Message.MessageId, smsDeliveredCommand.Message.Provider, smsDeliveredCommand.Message.CountryCode }, "Sms delivered");
-            await _smsProviderInfoRepository.AddAsync(smsDeliveredCommand.Message.Provider, smsDeliveredCommand.Message.CountryCode, SmsDeliveryStatus.Delivered);
-            await _smsRepository.DeleteAsync(smsDeliveredCommand.Message.Id, smsDeliveredCommand.Message.MessageId);
+            _log.WriteInfo(nameof(SmsDeliveredCommand), new { Phone = command.Message.Phone.SanitizePhone(),  command.Message.Id,
+                command.Message.MessageId, command.Message.Provider, command.Message.CountryCode }, "Sms delivered");
+            await _smsProviderInfoRepository.AddAsync(command.Message.Provider, command.Message.CountryCode, SmsDeliveryStatus.Delivered);
+            await _smsRepository.DeleteAsync(command.Message.Id, command.Message.MessageId);
             
             return CommandHandlingResult.Ok();
         }

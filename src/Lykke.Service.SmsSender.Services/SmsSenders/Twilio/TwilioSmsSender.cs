@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Common;
 using Common.Log;
 using Flurl;
@@ -27,32 +28,40 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
 
         public async Task<string> SendSmsAsync(string phone, string message, string countryCode)
         {
-            var response = await $"{BaseApiUrl}/Accounts/{_settings.ApiKey}/Messages.json"
-                .WithBasicAuth(_settings.ApiKey, _settings.ApiSecret)
-                .PostUrlEncodedAsync(new
-                {
-                    To = phone,
-                    From = _settings.GetFrom(countryCode),
-                    Body = message,
-                    StatusCallback = $"{_baseUrl}/callback/twilio"
-                }).ReceiveJson<TwilioResponse>();
-
-            if (!string.IsNullOrEmpty(response.ErrorMessage))
+            try
             {
-                _log.WriteWarning(nameof(SendSmsAsync), new
-                {
-                    response.Sid,
-                    Phone = response.To.SanitizePhone(),
-                    response.Status,
-                    response.ErrorCode,
-                    response.ErrorMessage
-                }, "twilio error response");
-            }
-            else
-            {
-                return response.Sid;
-            }
+                var response = await $"{BaseApiUrl}/Accounts/{_settings.ApiKey}/Messages.json"
+                    .WithBasicAuth(_settings.ApiKey, _settings.ApiSecret)
+                    .PostUrlEncodedAsync(new
+                    {
+                        To = phone,
+                        From = _settings.GetFrom(countryCode),
+                        Body = message,
+                        StatusCallback = $"{_baseUrl}/callback/twilio"
+                    }).ReceiveJson<TwilioResponse>();
 
+                if (!string.IsNullOrEmpty(response.ErrorMessage))
+                {
+                    _log.WriteWarning(nameof(SendSmsAsync), new
+                    {
+                        response.Sid,
+                        Phone = response.To.SanitizePhone(),
+                        response.Status,
+                        response.ErrorCode,
+                        response.ErrorMessage
+                    }, "twilio error response");
+                }
+                else
+                {
+                    return response.Sid;
+                }
+            }
+            catch (FlurlHttpException ex)
+            {
+                var error = ex.GetResponseJson<TwilioErrorResponse>();
+                _log.WriteWarning(nameof(SendSmsAsync), error, "twilio: error sending sms");
+            }
+            
             return null;
         }
     }
