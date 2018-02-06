@@ -48,6 +48,7 @@ namespace Lykke.Service.SmsSender.Controllers
                 
                 switch (model.MessageStatus)
                 {
+                    case TwilioMessageStatus.Sent:
                     case TwilioMessageStatus.Delivered:
                         _cqrsEngine.SendCommand(new SmsDeliveredCommand {Message = sms}, "sms", "sms");
                         break;
@@ -56,7 +57,7 @@ namespace Lykke.Service.SmsSender.Controllers
                         _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.MessageStatus}"}, "sms", "sms");
                         break;
                     default:
-                        _log.WriteWarning(nameof(TwilioCallback), model, $"status = {model.MessageStatus}");
+                        _log.WriteWarning(nameof(TwilioCallback), model, $"status = {model.MessageStatus}, callback processing is skipped");
                         break;
                 }
             }

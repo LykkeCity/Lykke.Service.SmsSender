@@ -1,12 +1,15 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Lykke.Service.SmsSender.Models
 {
     public class NexmoCallbackModel
     {
         public string MessageId { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
         public NexmoMessageStatus Status { get; set; }
         [JsonProperty("err-code")]
+        [JsonConverter(typeof(StringEnumConverter))]
         public NexmoErrorCode ErrorCode { get; set; }
     }
 
