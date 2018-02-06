@@ -38,6 +38,20 @@ namespace Lykke.Service.SmsSender.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.GetError());
 
+            var phone = model.Phone.GetValidPhone();
+
+            if (phone == null)
+            {
+                ModelState.AddModelError(nameof(model.Phone), "invalid phone number");
+                return BadRequest(ModelState.GetError());
+            }
+            
+            if (model.Message.Length > 160)
+            {
+                ModelState.AddModelError(nameof(model.Message), "Message length is too long (max. 160 chars)");
+                return BadRequest(ModelState.GetError());
+            }
+
             try
             {
                 _cqrsEngine.SendCommand(new ProcessSmsCommand {Message = model.Message, Phone = model.Phone}, "sms", "sms");

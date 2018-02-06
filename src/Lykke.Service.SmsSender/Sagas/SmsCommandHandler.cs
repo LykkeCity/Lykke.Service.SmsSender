@@ -8,6 +8,7 @@ using Lykke.Service.SmsSender.Core.Domain.SmsProviderInfoRepository;
 using Lykke.Service.SmsSender.Core.Domain.SmsRepository;
 using Lykke.Service.SmsSender.Core.Services;
 using Lykke.Service.SmsSender.Core.Settings.ServiceSettings;
+using Lykke.Service.SmsSender.Extensions;
 using Lykke.Service.SmsSender.Sagas.Commands;
 using Lykke.Service.SmsSender.Sagas.Events;
 using PhoneNumbers;
@@ -43,12 +44,11 @@ namespace Lykke.Service.SmsSender.Sagas
         {
             _log.WriteInfo(nameof(ProcessSmsCommand), new { Phone = command.Phone.SanitizePhone() }, "Processing sms");
 
-            var phoneUtils = PhoneNumberUtil.GetInstance();
-
-            var phone = phoneUtils.Parse(command.Phone, null);
-
-            if (phone != null && phoneUtils.IsValidNumber(phone))
+            var phone = command.Phone.GetValidPhone();
+            
+            if (phone != null)
             {
+                var phoneUtils = PhoneNumberUtil.GetInstance();
                 string countryCode = phoneUtils.GetRegionCodeForCountryCode(phone.CountryCode);
                 var provider = await _settingsService.GetProviderByCountryAsync(countryCode);
 

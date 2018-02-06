@@ -31,7 +31,12 @@ namespace Lykke.Service.SmsSender.Controllers
         [Route("twilio")]
         public async Task<IActionResult> TwilioCallback([FromForm] TwilioCallbackModel model)
         {
-            if (!string.IsNullOrEmpty(model?.MessageSid))
+            if (model == null)
+                return Ok();
+            
+            _log.WriteInfo(nameof(TwilioCallback), model, "Twilio callback");
+            
+            if (!string.IsNullOrEmpty(model.MessageSid))
             {
                 var sms = await _smsRepository.GetByMessageIdAsync(model.MessageSid);
 
@@ -64,7 +69,12 @@ namespace Lykke.Service.SmsSender.Controllers
         [Route("nexmo")]
         public async Task<IActionResult> NexmoCallback(NexmoCallbackModel model)
         {
-            if (!string.IsNullOrEmpty(model?.MessageId))
+            if (model == null)
+                return Ok();
+            
+            _log.WriteInfo(nameof(NexmoCallback), model, "Nexmo callback");
+            
+            if (!string.IsNullOrEmpty(model.MessageId))
             {
                 var sms = await _smsRepository.GetByMessageIdAsync(model.MessageId);
 
@@ -74,7 +84,7 @@ namespace Lykke.Service.SmsSender.Controllers
                     return Ok();
                 }
                 
-                if (model.Status == NexmoMessageStatus.Delivered && model.ErrorCode == NexmoErrorCode.Delivered)
+                if (model.ErrorCode == NexmoErrorCode.Delivered)
                     _cqrsEngine.SendCommand(new SmsDeliveredCommand {Message = sms}, "sms", "sms");
                 else
                     _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.Status}, error = {model.ErrorCode}"}, "sms", "sms");
