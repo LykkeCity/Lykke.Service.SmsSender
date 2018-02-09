@@ -9,8 +9,8 @@
     <Folder Include="Domain\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Lykke.Common" Version="4.4.1" />
+    <PackageReference Include="Lykke.Common" Version="4.4.2" />
     <PackageReference Include="Lykke.Cqrs" Version="2.1.1" />
-    <PackageReference Include="Lykke.SettingsReader" Version="1.1.4" />
+    <PackageReference Include="Lykke.SettingsReader" Version="2.0.1" />
   </ItemGroup>
 </Project>

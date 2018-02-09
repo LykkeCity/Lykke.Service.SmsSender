@@ -1,8 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Common;
 using Common.Log;
-using Flurl;
 using Flurl.Http;
 using Lykke.Service.SmsSender.Core.Services;
 using Lykke.Service.SmsSender.Core.Settings.ServiceSettings.SenderSettings;
@@ -46,6 +44,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
                     {
                         response.Sid,
                         Phone = response.To.SanitizePhone(),
+                        countryCode,
                         response.Status,
                         response.ErrorCode,
                         response.ErrorMessage

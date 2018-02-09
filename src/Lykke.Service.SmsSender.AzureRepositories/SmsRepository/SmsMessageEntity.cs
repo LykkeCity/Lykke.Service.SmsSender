@@ -4,7 +4,6 @@ using Lykke.AzureStorage.Tables.Entity.Annotation;
 using Lykke.AzureStorage.Tables.Entity.ValueTypesMerging;
 using Lykke.Service.SmsSender.Core.Domain;
 using Lykke.Service.SmsSender.Core.Domain.SmsRepository;
-using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Lykke.Service.SmsSender.AzureRepositories.SmsRepository
 {
@@ -20,7 +19,7 @@ namespace Lykke.Service.SmsSender.AzureRepositories.SmsRepository
         public DateTime Created { get; set; }
 
         internal static string GenerateRowKey(string id) => id;
-        internal static string GeneratePartitionKey() => "SmsMessage";
+        internal static string GeneratePartitionKey(DateTime created) => created.ToString("yyyy-MM-dd");
 
         internal static SmsMessageEntity Create(ISmsMessage message)
         {
@@ -30,7 +29,7 @@ namespace Lykke.Service.SmsSender.AzureRepositories.SmsRepository
             
             return new SmsMessageEntity
             {
-                PartitionKey = GeneratePartitionKey(),
+                PartitionKey = GeneratePartitionKey(message.Created == DateTime.MinValue ? DateTime.UtcNow : message.Created),
                 RowKey = GenerateRowKey(id),
                 Id = id,
                 CountryCode = message.CountryCode,

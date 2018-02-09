@@ -1,6 +1,4 @@
-﻿using System;
-using System.Security;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Lykke.Service.SmsSender.Core.Domain.SmsRepository
 {

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Common;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace Lykke.Service.SmsSender.Models
@@ -13,6 +14,20 @@ namespace Lykke.Service.SmsSender.Models
         public string Body { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public TwilioMessageStatus MessageStatus { get; set; }
+
+        public object Sanitize()
+        {
+            return new
+            {
+                MessageSid,
+                AccountSid,
+                MessagingServiceSid,
+                From,
+                To = To.SanitizePhone(),
+                Body,
+                MessageStatus
+            };
+        }
     }
 
     public enum TwilioMessageStatus

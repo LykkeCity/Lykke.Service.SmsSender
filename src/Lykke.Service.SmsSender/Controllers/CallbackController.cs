@@ -34,7 +34,7 @@ namespace Lykke.Service.SmsSender.Controllers
             if (model == null)
                 return Ok();
             
-            _log.WriteInfo(nameof(TwilioCallback), model, "Twilio callback");
+            _log.WriteInfo(nameof(TwilioCallback), model.Sanitize(), "Twilio callback");
             
             if (!string.IsNullOrEmpty(model.MessageSid))
             {
@@ -42,7 +42,7 @@ namespace Lykke.Service.SmsSender.Controllers
 
                 if (sms == null)
                 {
-                    _log.WriteWarning(nameof(TwilioCallback), model, $"Sms message with messageId = {model.MessageSid} not found");
+                    _log.WriteWarning(nameof(TwilioCallback), model.MessageSid, $"Sms message with messageId = {model.MessageSid} not found");
                     return Ok();
                 }
                 
@@ -57,7 +57,7 @@ namespace Lykke.Service.SmsSender.Controllers
                         _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.MessageStatus}"}, "sms", "sms");
                         break;
                     default:
-                        _log.WriteWarning(nameof(TwilioCallback), model, $"status = {model.MessageStatus}, callback processing is skipped");
+                        _log.WriteWarning(nameof(TwilioCallback), model.MessageSid, $"status = {model.MessageStatus}, callback processing is skipped");
                         break;
                 }
             }
@@ -81,7 +81,7 @@ namespace Lykke.Service.SmsSender.Controllers
 
                 if (sms == null)
                 {
-                    _log.WriteWarning(nameof(NexmoCallback), model, $"Sms message with messageId = {model.MessageId} not found");
+                    _log.WriteWarning(nameof(NexmoCallback), model.MessageId, $"Sms message with messageId = {model.MessageId} not found");
                     return Ok();
                 }
                 

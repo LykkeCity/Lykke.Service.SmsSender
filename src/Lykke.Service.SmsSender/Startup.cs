@@ -14,7 +14,6 @@ using Lykke.Service.SmsSender.Core.Settings;
 using Lykke.Service.SmsSender.Modules;
 using Lykke.SettingsReader;
 using Lykke.SlackNotification.AzureQueue;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
