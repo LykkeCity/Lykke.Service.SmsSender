@@ -12,7 +12,6 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
         private readonly string _baseUrl;
         private readonly ProviderSettings _settings;
         private readonly ILog _log;
-        private const string BaseApiUrl = "https://api.twilio.com/2010-04-01";
 
         public TwilioSmsSender(
             string baseUrl,
@@ -28,7 +27,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
         {
             try
             {
-                var response = await $"{BaseApiUrl}/Accounts/{_settings.ApiKey}/Messages.json"
+                var response = await $"{_settings.BaseUrl}/Accounts/{_settings.ApiKey}/Messages.json"
                     .WithBasicAuth(_settings.ApiKey, _settings.ApiSecret)
                     .PostUrlEncodedAsync(new
                     {

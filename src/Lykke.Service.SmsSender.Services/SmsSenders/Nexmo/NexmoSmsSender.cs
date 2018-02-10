@@ -13,7 +13,6 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
         private readonly string _baseUrl;
         private readonly ProviderSettings _settings;
         private readonly ILog _log;
-        private const string BaseUrl = "https://rest.nexmo.com";
         
         public NexmoSmsSender(
             string baseUrl,
@@ -29,7 +28,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
         {
             try
             {
-                var response = await $"{BaseUrl}/sms/json"
+                var response = await $"{_settings.BaseUrl}/sms/json"
                 .PostUrlEncodedAsync(new
                 {
                     to = phone,

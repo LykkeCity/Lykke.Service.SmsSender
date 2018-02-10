@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Lykke.SettingsReader.Attributes;
 
 namespace Lykke.Service.SmsSender.Core.Settings.ServiceSettings.SenderSettings
 {
     public class ProviderSettings
     {
+        public string BaseUrl { get; set; }
         public string ApiKey { get; set; }
         public string ApiSecret { get; set; }
         public string From { get; set; }
