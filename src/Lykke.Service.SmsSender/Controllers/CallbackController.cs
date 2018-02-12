@@ -48,7 +48,6 @@ namespace Lykke.Service.SmsSender.Controllers
                 
                 switch (model.MessageStatus)
                 {
-                    case TwilioMessageStatus.Sent:
                     case TwilioMessageStatus.Delivered:
                         _cqrsEngine.SendCommand(new SmsDeliveredCommand {Message = sms}, "sms", "sms");
                         break;
