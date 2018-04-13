@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
 using Autofac;
 using AzureStorage.Tables;
 using AzureStorage.Tables.Templates.Index;
 using Common.Log;
-using Inceptum.Cqrs.Configuration;
-using Inceptum.Messaging;
-using Inceptum.Messaging.RabbitMq;
 using Lykke.Cqrs;
+using Lykke.Cqrs.Configuration;
 using Lykke.Messaging;
+using Lykke.Messaging.RabbitMq;
 using Lykke.Service.SmsSender.AzureRepositories.SmsProviderInfoRepository;
 using Lykke.Service.SmsSender.AzureRepositories.SmsRepository;
 using Lykke.Service.SmsSender.AzureRepositories.SmsSenderSettings;
@@ -26,7 +24,6 @@ using Lykke.Service.SmsSender.Services.SmsSenders.Nexmo;
 using Lykke.Service.SmsSender.Services.SmsSenders.Twilio;
 using Lykke.SettingsReader;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 
 namespace Lykke.Service.SmsSender.Modules
 {

@@ -21,7 +21,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
         {
             _baseUrl = baseUrl;
             _settings = settings;
-            _log = log;
+            _log = log.CreateComponentScope(nameof(NexmoSmsSender));
         }
 
         public async Task<string> SendSmsAsync(string phone, string message, string countryCode)

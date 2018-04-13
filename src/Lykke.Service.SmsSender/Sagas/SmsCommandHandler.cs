@@ -37,7 +37,7 @@ namespace Lykke.Service.SmsSender.Sagas
             _smsSenderFactory = smsSenderFactory;
             _smsRepository = smsRepository;
             _smsProviderInfoRepository = smsProviderInfoRepository;
-            _log = log;
+            _log = log.CreateComponentScope(nameof(SmsCommandHandler));
         }
 
         public async Task<CommandHandlingResult> Handle(ProcessSmsCommand command, IEventPublisher eventPublisher)
@@ -138,7 +138,7 @@ namespace Lykke.Service.SmsSender.Sagas
         
         public async Task<CommandHandlingResult> Handle(SmsNotDeliveredCommand command, IEventPublisher eventPublisher)
         {
-            _log.WriteInfo(nameof(SmsNotDeliveredCommand), new { Phone = command.Message.Phone.SanitizePhone(), command.Message.Id, command.Message.MessageId,
+            _log.WriteWarning(nameof(SmsNotDeliveredCommand), new { Phone = command.Message.Phone.SanitizePhone(), command.Message.Id, command.Message.MessageId,
                 command.Message.Provider, command.Message.CountryCode }, $"Sms delivery failed: {command.Error}");
 
             if (command.Message.IsExpired(_smsSettings.SmsRetryTimeout))

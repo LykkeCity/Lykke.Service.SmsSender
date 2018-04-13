@@ -20,7 +20,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
         {
             _baseUrl = baseUrl;
             _settings = settings;
-            _log = log;
+            _log = log.CreateComponentScope(nameof(TwilioSmsSender));
         }
 
         public async Task<string> SendSmsAsync(string phone, string message, string countryCode)
@@ -56,7 +56,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
             }
             catch (FlurlHttpException ex)
             {
-                var error = ex.GetResponseJson<TwilioErrorResponse>();
+                var error = await ex.GetResponseJsonAsync<TwilioErrorResponse>();
                 _log.WriteWarning(nameof(SendSmsAsync), error, "twilio: error sending sms");
             }
             

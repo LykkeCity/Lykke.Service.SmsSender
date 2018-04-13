@@ -24,7 +24,7 @@ namespace Lykke.Service.SmsSender.Controllers
         {
             _smsRepository = smsRepository;
             _cqrsEngine = cqrsEngine;
-            _log = log;
+            _log = log.CreateComponentScope(nameof(CallbackController));
         }
 
         [HttpPost]
@@ -84,7 +84,7 @@ namespace Lykke.Service.SmsSender.Controllers
                     return Ok();
                 }
                 
-                if (model.ErrorCode == NexmoErrorCode.Delivered)
+                if (model.Status == NexmoMessageStatus.Delivered && model.ErrorCode == NexmoErrorCode.Delivered)
                     _cqrsEngine.SendCommand(new SmsDeliveredCommand {Message = sms}, "sms", "sms");
                 else
                     _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.Status}, error = {model.ErrorCode}"}, "sms", "sms");
