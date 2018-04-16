@@ -13,5 +13,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
         public string ErrorCode { get; set; }
         [JsonProperty("error_message")]
         public string ErrorMessage { get; set; }
+
+        public bool AccountNotActive => ErrorCode == "10001" || ErrorCode == "10003" || ErrorCode == "20005" || ErrorCode == "21472" || ErrorCode == "90010";
     }
 }

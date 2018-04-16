@@ -6,6 +6,8 @@ namespace Lykke.Service.SmsSender.Core.Settings.ServiceSettings.SenderSettings
     public class ProviderSettings
     {
         public string BaseUrl { get; set; }
+        [Optional]
+        public string AuthUrl { get; set; }
         public string ApiKey { get; set; }
         public string ApiSecret { get; set; }
         public string From { get; set; }

@@ -47,13 +47,19 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
                             {
                                 Phone = phone.SanitizePhone(),
                                 item.Status,
-                                item.Error
+                                item.Error,
+                                item.RemainingBalance
                             })
                         .ToList();
 
                     if (errors.Any())
                     {
-                        _log.WriteWarning(nameof(SendSmsAsync), errors, "nexmo error messages");
+                        var notEnoughFunds = errors.FirstOrDefault(item => item.Status == NexmoStatus.PartnerQuotaExceeded);
+
+                        if (notEnoughFunds != null)
+                            _log.WriteError(nameof(SendSmsAsync), notEnoughFunds);
+                        else
+                            _log.WriteWarning(nameof(SendSmsAsync), errors, "error sending sms");
                     }
                 
                     return response.Messages.FirstOrDefault(item => item.Status == NexmoStatus.Ok)?.MessageId;

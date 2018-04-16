@@ -55,6 +55,8 @@ namespace Lykke.Service.SmsSender
                     options.DefaultLykkeConfiguration("v1", "SmsSender API");
                 });
 
+                services.AddMemoryCache();
+
                 var builder = new ContainerBuilder();
                 var appSettings = Configuration.LoadSettings<AppSettings>();
 

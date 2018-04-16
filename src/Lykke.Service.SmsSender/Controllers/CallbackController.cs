@@ -4,6 +4,7 @@ using Lykke.Cqrs;
 using Lykke.Service.SmsSender.Core.Domain.SmsRepository;
 using Lykke.Service.SmsSender.Models;
 using Lykke.Service.SmsSender.Sagas.Commands;
+using Lykke.Service.SmsSender.Services.SmsSenders.Routee;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lykke.Service.SmsSender.Controllers
@@ -42,7 +43,7 @@ namespace Lykke.Service.SmsSender.Controllers
 
                 if (sms == null)
                 {
-                    _log.WriteWarning(nameof(TwilioCallback), model.MessageSid, $"Sms message with messageId = {model.MessageSid} not found");
+                    _log.WriteInfo(nameof(TwilioCallback), model.MessageSid, $"Sms message with messageId = {model.MessageSid} not found");
                     return Ok();
                 }
                 
@@ -80,7 +81,7 @@ namespace Lykke.Service.SmsSender.Controllers
 
                 if (sms == null)
                 {
-                    _log.WriteWarning(nameof(NexmoCallback), model.MessageId, $"Sms message with messageId = {model.MessageId} not found");
+                    _log.WriteInfo(nameof(NexmoCallback), model.MessageId, $"Sms message with messageId = {model.MessageId} not found");
                     return Ok();
                 }
                 
@@ -88,6 +89,34 @@ namespace Lykke.Service.SmsSender.Controllers
                     _cqrsEngine.SendCommand(new SmsDeliveredCommand {Message = sms}, "sms", "sms");
                 else
                     _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.Status}, error = {model.ErrorCode}"}, "sms", "sms");
+            }
+
+            return Ok();
+        }
+        
+        [HttpPost]
+        [Route("routee")]
+        public async Task<IActionResult> RouteeCallback([FromBody]RouteeCallbackModel model)
+        {
+            if (model == null)
+                return Ok();
+            
+            _log.WriteInfo(nameof(RouteeCallback), model, "Routee callback");
+            
+            if (!string.IsNullOrEmpty(model.MessageId))
+            {
+                var sms = await _smsRepository.GetByMessageIdAsync(model.MessageId);
+
+                if (sms == null)
+                {
+                    _log.WriteInfo(nameof(RouteeCallback), model.MessageId, $"Sms message with messageId = {model.MessageId} not found");
+                    return Ok();
+                }
+                
+                if (model.Status.Name == RouteeStaus.Delivered)
+                    _cqrsEngine.SendCommand(new SmsDeliveredCommand {Message = sms}, "sms", "sms");
+                else
+                    _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.Status.Name}, error = {model.Status.Reason?.DetailedStatus} : {model.Status.Reason?.Description}"}, "sms", "sms");
             }
 
             return Ok();

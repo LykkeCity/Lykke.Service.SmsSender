@@ -21,6 +21,7 @@ using Lykke.Service.SmsSender.Sagas.Commands;
 using Lykke.Service.SmsSender.Sagas.Events;
 using Lykke.Service.SmsSender.Services;
 using Lykke.Service.SmsSender.Services.SmsSenders.Nexmo;
+using Lykke.Service.SmsSender.Services.SmsSenders.Routee;
 using Lykke.Service.SmsSender.Services.SmsSenders.Twilio;
 using Lykke.SettingsReader;
 using Microsoft.AspNetCore.Hosting;
@@ -78,6 +79,12 @@ namespace Lykke.Service.SmsSender.Modules
             builder.RegisterType<NexmoSmsSender>()
                 .As<ISmsSender>()
                 .WithParameter(TypedParameter.From(_settings.CurrentValue.Senders.Nexmo))
+                .WithParameter("baseUrl", _settings.CurrentValue.BaseUrl)
+                .SingleInstance();
+            
+            builder.RegisterType<RouteeSmsSender>()
+                .As<ISmsSender>()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.Senders.Routee))
                 .WithParameter("baseUrl", _settings.CurrentValue.BaseUrl)
                 .SingleInstance();
 
