@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
 using Autofac;
 using AzureStorage.Tables;
 using AzureStorage.Tables.Templates.Index;
 using Common.Log;
-using Inceptum.Cqrs.Configuration;
-using Inceptum.Messaging;
-using Inceptum.Messaging.RabbitMq;
 using Lykke.Cqrs;
+using Lykke.Cqrs.Configuration;
 using Lykke.Messaging;
+using Lykke.Messaging.RabbitMq;
 using Lykke.Service.SmsSender.AzureRepositories.SmsProviderInfoRepository;
 using Lykke.Service.SmsSender.AzureRepositories.SmsRepository;
 using Lykke.Service.SmsSender.AzureRepositories.SmsSenderSettings;
@@ -23,10 +21,10 @@ using Lykke.Service.SmsSender.Sagas.Commands;
 using Lykke.Service.SmsSender.Sagas.Events;
 using Lykke.Service.SmsSender.Services;
 using Lykke.Service.SmsSender.Services.SmsSenders.Nexmo;
+using Lykke.Service.SmsSender.Services.SmsSenders.Routee;
 using Lykke.Service.SmsSender.Services.SmsSenders.Twilio;
 using Lykke.SettingsReader;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 
 namespace Lykke.Service.SmsSender.Modules
 {
@@ -81,6 +79,12 @@ namespace Lykke.Service.SmsSender.Modules
             builder.RegisterType<NexmoSmsSender>()
                 .As<ISmsSender>()
                 .WithParameter(TypedParameter.From(_settings.CurrentValue.Senders.Nexmo))
+                .WithParameter("baseUrl", _settings.CurrentValue.BaseUrl)
+                .SingleInstance();
+            
+            builder.RegisterType<RouteeSmsSender>()
+                .As<ISmsSender>()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.Senders.Routee))
                 .WithParameter("baseUrl", _settings.CurrentValue.BaseUrl)
                 .SingleInstance();
 

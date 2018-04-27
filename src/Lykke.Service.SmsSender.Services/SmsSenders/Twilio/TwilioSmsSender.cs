@@ -20,7 +20,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
         {
             _baseUrl = baseUrl;
             _settings = settings;
-            _log = log;
+            _log = log.CreateComponentScope(nameof(TwilioSmsSender));
         }
 
         public async Task<string> SendSmsAsync(string phone, string message, string countryCode)
@@ -37,9 +37,9 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
                         StatusCallback = $"{_baseUrl}/callback/twilio"
                     }).ReceiveJson<TwilioResponse>();
 
-                if (!string.IsNullOrEmpty(response.ErrorMessage))
+                if (!string.IsNullOrEmpty(response.ErrorCode))
                 {
-                    _log.WriteWarning(nameof(SendSmsAsync), new
+                    var error = new
                     {
                         response.Sid,
                         Phone = response.To.SanitizePhone(),
@@ -47,7 +47,12 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
                         response.Status,
                         response.ErrorCode,
                         response.ErrorMessage
-                    }, "twilio error response");
+                    };
+                    
+                    if (response.AccountNotActive)
+                        _log.WriteError(nameof(SendSmsAsync), error);
+                    else
+                        _log.WriteWarning(nameof(SendSmsAsync), error, "error sending sms");
                 }
                 else
                 {
@@ -56,7 +61,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
             }
             catch (FlurlHttpException ex)
             {
-                var error = ex.GetResponseJson<TwilioErrorResponse>();
+                var error = await ex.GetResponseJsonAsync<TwilioErrorResponse>();
                 _log.WriteWarning(nameof(SendSmsAsync), error, "twilio: error sending sms");
             }
             

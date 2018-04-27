@@ -9,7 +9,7 @@
     <ProjectReference Include="..\Lykke.Service.SmsSender.Core\Lykke.Service.SmsSender.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Flurl.Http" Version="2.1.1" />
-    <PackageReference Include="Lykke.Common" Version="4.4.2" />
+    <PackageReference Include="Flurl.Http" Version="2.3.0" />
+    <PackageReference Include="Lykke.Common" Version="6.3.0" />
   </ItemGroup>
 </Project>

@@ -37,7 +37,7 @@ namespace Lykke.Service.SmsSender.Sagas
             _smsSenderFactory = smsSenderFactory;
             _smsRepository = smsRepository;
             _smsProviderInfoRepository = smsProviderInfoRepository;
-            _log = log;
+            _log = log.CreateComponentScope(nameof(SmsCommandHandler));
         }
 
         public async Task<CommandHandlingResult> Handle(ProcessSmsCommand command, IEventPublisher eventPublisher)
@@ -87,14 +87,14 @@ namespace Lykke.Service.SmsSender.Sagas
 
             if (message == null)
             {
-                _log.WriteWarning(nameof(SendSmsCommand), msg, $"Sms message with messageId = {command.Id} not found");
+                _log.WriteInfo(nameof(SendSmsCommand), msg, $"Sms message with messageId = {command.Id} not found");
                 return CommandHandlingResult.Ok();
             }
             
             if (message.IsExpired(_smsSettings.SmsRetryTimeout))
             {
                 await _smsRepository.DeleteAsync(message.Id, message.MessageId);
-                _log.WriteWarning(nameof(SendSmsCommand), msg, "Sms message expired and has been deleted");
+                _log.WriteInfo(nameof(SendSmsCommand), msg, "Sms message expired and has been deleted");
                 return CommandHandlingResult.Ok();
             }
             
@@ -114,7 +114,7 @@ namespace Lykke.Service.SmsSender.Sagas
                 else
                 {
                     await _smsRepository.DeleteAsync(command.Id, messageId);
-                    _log.WriteWarning(nameof(SendSmsCommand), new { command.Id }, "Sms message has been deleted");
+                    _log.WriteInfo(nameof(SendSmsCommand), new { command.Id }, "Sms message has been deleted");
                 }
             }
             catch (Exception)
@@ -138,7 +138,7 @@ namespace Lykke.Service.SmsSender.Sagas
         
         public async Task<CommandHandlingResult> Handle(SmsNotDeliveredCommand command, IEventPublisher eventPublisher)
         {
-            _log.WriteInfo(nameof(SmsNotDeliveredCommand), new { Phone = command.Message.Phone.SanitizePhone(), command.Message.Id, command.Message.MessageId,
+            _log.WriteWarning(nameof(SmsNotDeliveredCommand), new { Phone = command.Message.Phone.SanitizePhone(), command.Message.Id, command.Message.MessageId,
                 command.Message.Provider, command.Message.CountryCode }, $"Sms delivery failed: {command.Error}");
 
             if (command.Message.IsExpired(_smsSettings.SmsRetryTimeout))

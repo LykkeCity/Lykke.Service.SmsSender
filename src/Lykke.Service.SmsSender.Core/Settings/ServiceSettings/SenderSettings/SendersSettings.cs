@@ -4,5 +4,6 @@
     {
         public ProviderSettings Twilio { get; set; }
         public ProviderSettings Nexmo { get; set; }
+        public ProviderSettings Routee { get; set; }
     }
 }

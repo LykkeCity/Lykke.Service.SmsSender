@@ -9,6 +9,7 @@ using Lykke.AzureStorage.Tables.Entity.Metamodel.Providers;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Logs;
+using Lykke.Logs.Slack;
 using Lykke.Service.SmsSender.Core.Services;
 using Lykke.Service.SmsSender.Core.Settings;
 using Lykke.Service.SmsSender.Modules;
@@ -53,6 +54,8 @@ namespace Lykke.Service.SmsSender
                 {
                     options.DefaultLykkeConfiguration("v1", "SmsSender API");
                 });
+
+                services.AddMemoryCache();
 
                 var builder = new ContainerBuilder();
                 var appSettings = Configuration.LoadSettings<AppSettings>();
@@ -210,6 +213,9 @@ namespace Lykke.Service.SmsSender
             azureStorageLogger.Start();
 
             aggregateLogger.AddLog(azureStorageLogger);
+            
+            var logToSlack = LykkeLogToSlack.Create(slackService, "lykke-service-smssender", LogLevel.Error | LogLevel.FatalError | LogLevel.Warning);
+            aggregateLogger.AddLog(logToSlack);
 
             return aggregateLogger;
         }
