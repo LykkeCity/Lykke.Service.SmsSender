@@ -84,11 +84,24 @@ namespace Lykke.Service.SmsSender.Controllers
                     _log.WriteInfo(nameof(NexmoCallback), model.MessageId, $"Sms message with messageId = {model.MessageId} not found");
                     return Ok();
                 }
-                
-                if (model.Status == NexmoMessageStatus.Delivered && model.ErrorCode == NexmoErrorCode.Delivered)
-                    _cqrsEngine.SendCommand(new SmsDeliveredCommand {Message = sms}, "sms", "sms");
-                else
-                    _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.Status}, error = {model.ErrorCode}"}, "sms", "sms");
+
+                switch (model.Status)
+                {
+                    case NexmoMessageStatus.Delivered:
+                        _cqrsEngine.SendCommand(new SmsDeliveredCommand {Message = sms}, "sms", "sms");
+                        break;
+                    case NexmoMessageStatus.Expired:
+                    case NexmoMessageStatus.Failed:
+                    case NexmoMessageStatus.Rejected:
+                        _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.Status}, error = {model.ErrorCode}"}, "sms", "sms");
+                        break;
+                    case NexmoMessageStatus.Unknown:
+                        _cqrsEngine.SendCommand(new SmsDeliveryUnknownCommand {Message = sms, Error = $"status = {model.Status}, error = {model.ErrorCode}"}, "sms", "sms");
+                        break;
+                    default:
+                        _log.WriteWarning(nameof(NexmoCallback), model.MessageId, $"status = {model.Status}, callback processing is skipped");
+                        break;
+                }
             }
 
             return Ok();
@@ -112,11 +125,23 @@ namespace Lykke.Service.SmsSender.Controllers
                     _log.WriteInfo(nameof(RouteeCallback), model.MessageId, $"Sms message with messageId = {model.MessageId} not found");
                     return Ok();
                 }
-                
-                if (model.Status.Name == RouteeStaus.Delivered)
-                    _cqrsEngine.SendCommand(new SmsDeliveredCommand {Message = sms}, "sms", "sms");
-                else
-                    _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.Status.Name}, error = {model.Status.Reason?.DetailedStatus} : {model.Status.Reason?.Description}"}, "sms", "sms");
+
+                switch (model.Status.Name)
+                {
+                    case RouteeStaus.Delivered:
+                        _cqrsEngine.SendCommand(new SmsDeliveredCommand {Message = sms}, "sms", "sms");
+                        break;
+                    case RouteeStaus.Undelivered:
+                    case RouteeStaus.Failed:
+                        if (model.Status.Reason?.DetailedStatus == RouteeDetailedStatus.UnknownStatus)
+                            _cqrsEngine.SendCommand(new SmsDeliveryUnknownCommand {Message = sms, Error = $"status = {model.Status.Name}, error = {model.Status.Reason?.DetailedStatus} : {model.Status.Reason?.Description}"}, "sms", "sms");
+                        else    
+                            _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.Status.Name}, error = {model.Status.Reason?.DetailedStatus} : {model.Status.Reason?.Description}"}, "sms", "sms");
+                        break;
+                    default:
+                        _log.WriteWarning(nameof(NexmoCallback), model.MessageId, $"status = {model.Status}, callback processing is skipped");
+                        break;
+                }
             }
 
             return Ok();

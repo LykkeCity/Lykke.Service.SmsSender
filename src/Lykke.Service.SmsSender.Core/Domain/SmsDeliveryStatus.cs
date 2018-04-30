@@ -3,6 +3,7 @@
     public enum SmsDeliveryStatus
     {
         Delivered,
-        Failed
+        Failed,
+        Unknown
     }
 }

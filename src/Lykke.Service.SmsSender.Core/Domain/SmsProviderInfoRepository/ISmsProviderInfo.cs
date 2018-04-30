@@ -6,6 +6,6 @@
         string CountryCode { get; }
         long DeliveredCount { get; }
         long DeliveryFailedCount { get; }
-        long RetryCount { get; }
+        long UnknownCount { get; }
     }
 }

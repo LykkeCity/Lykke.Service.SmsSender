@@ -132,7 +132,8 @@ namespace Lykke.Service.SmsSender.Modules
                 typeof(ProcessSmsCommand), 
                 typeof(SendSmsCommand), 
                 typeof(SmsDeliveredCommand), 
-                typeof(SmsNotDeliveredCommand)
+                typeof(SmsNotDeliveredCommand),
+                typeof(SmsDeliveryUnknownCommand)
             };
 
             var smsEvents = new[]

@@ -6,13 +6,12 @@ namespace Lykke.Service.SmsSender.Models
     public class NexmoCallbackModel
     {
         public string MessageId { get; set; }
-        [JsonConverter(typeof(StringEnumConverter))]
         public NexmoMessageStatus Status { get; set; }
         [JsonProperty("err-code")]
-        [JsonConverter(typeof(StringEnumConverter))]
         public NexmoErrorCode ErrorCode { get; set; }
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum NexmoMessageStatus
     {
         Delivered,
@@ -24,6 +23,7 @@ namespace Lykke.Service.SmsSender.Models
         Unknown
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum NexmoErrorCode
     {
         Delivered = 0,

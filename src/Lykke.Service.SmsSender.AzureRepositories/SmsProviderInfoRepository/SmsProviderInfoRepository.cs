@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AzureStorage;
 using Lykke.Service.SmsSender.Core.Domain;
@@ -30,22 +31,34 @@ namespace Lykke.Service.SmsSender.AzureRepositories.SmsProviderInfoRepository
                 await _tableStorage.MergeAsync(SmsProviderInfoEntity.GeneratePartitionKey(provider), SmsProviderInfoEntity.GenerateRowKey(countryCode),
                     infoEntity =>
                     {
-                        if (status == SmsDeliveryStatus.Delivered)
-                            entity.DeliveredCount++;
-                        else
+                        switch (status)
                         {
-                            entity.DeliveryFailedCount++;
-                            entity.RetryCount++;
+                            case SmsDeliveryStatus.Delivered:
+                                infoEntity.DeliveredCount++;
+                                break;
+                            case SmsDeliveryStatus.Failed:
+                                infoEntity.DeliveryFailedCount++;
+                                break;
+                            case SmsDeliveryStatus.Unknown:
+                                infoEntity.UnknownCount++;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException(nameof(status), status, null);
                         }
                             
-                        return entity;
+                        return infoEntity;
                     });
             }
         }
 
-        public async Task<IEnumerable<ISmsProviderInfo>> GetAllByProvider(SmsProvider provider)
+        public async Task<IEnumerable<ISmsProviderInfo>> GetAllByProviderAsync(SmsProvider provider)
         {
             return await _tableStorage.GetDataAsync(SmsProviderInfoEntity.GeneratePartitionKey(provider));
+        }
+
+        public async Task<IEnumerable<ISmsProviderInfo>> GetAllAsync()
+        {
+            return await _tableStorage.GetDataAsync();
         }
     }
 }

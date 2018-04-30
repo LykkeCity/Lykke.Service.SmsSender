@@ -1,6 +1,4 @@
-﻿using System.Dynamic;
-using System.Runtime.CompilerServices;
-using Lykke.Service.SmsSender.Core.Domain;
+﻿using Lykke.Service.SmsSender.Core.Domain;
 using Lykke.Service.SmsSender.Core.Domain.SmsProviderInfoRepository;
 using Microsoft.WindowsAzure.Storage.Table;
 
@@ -12,7 +10,7 @@ namespace Lykke.Service.SmsSender.AzureRepositories.SmsProviderInfoRepository
         public string CountryCode { get; set; }
         public long DeliveredCount { get; set; }
         public long DeliveryFailedCount { get; set; }
-        public long RetryCount { get; set; }
+        public long UnknownCount { get; set; }
 
         internal static string GeneratePartitionKey(SmsProvider provider) => provider.ToString();
         internal static string GenerateRowKey(string countryCode) => countryCode;
@@ -27,6 +25,7 @@ namespace Lykke.Service.SmsSender.AzureRepositories.SmsProviderInfoRepository
                 CountryCode = countryCode,
                 DeliveredCount = status == SmsDeliveryStatus.Delivered ? 1 : 0,
                 DeliveryFailedCount = status == SmsDeliveryStatus.Failed ? 1 : 0,
+                UnknownCount = status == SmsDeliveryStatus.Unknown ? 1 : 0
             };
         }
     }

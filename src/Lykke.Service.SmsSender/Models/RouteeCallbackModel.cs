@@ -34,4 +34,13 @@ namespace Lykke.Service.SmsSender.Models
         public string DetailedStatus { get; set; }
         public string Description { get; set; }
     }
+
+    public static class RouteeDetailedStatus
+    {
+        public const string UnknownNumber = "Unknown Number";
+        public const string Roaming = "Roaming";
+        public const string CallBarred = "Call Barred";
+        public const string UnknownStatus = "Unknown Status";
+        public const string CarrierViolation = "Carrier Violation";
+    }
 }
