@@ -153,5 +153,16 @@ namespace Lykke.Service.SmsSender.Sagas
             
             return CommandHandlingResult.Ok();
         }
+        
+        public async Task<CommandHandlingResult> Handle(SmsDeliveryUnknownCommand command, IEventPublisher eventPublisher)
+        {
+            _log.WriteWarning(nameof(SmsDeliveryUnknownCommand), new { Phone = command.Message.Phone.SanitizePhone(), command.Message.Id, command.Message.MessageId,
+                command.Message.Provider, command.Message.CountryCode }, $"Sms delivery unknown: {command.Error}");
+
+            await _smsProviderInfoRepository.AddAsync(command.Message.Provider, command.Message.CountryCode, SmsDeliveryStatus.Unknown);
+            await _smsRepository.DeleteAsync(command.Message.Id, command.Message.MessageId);
+            
+            return CommandHandlingResult.Ok();
+        }
     }
 }

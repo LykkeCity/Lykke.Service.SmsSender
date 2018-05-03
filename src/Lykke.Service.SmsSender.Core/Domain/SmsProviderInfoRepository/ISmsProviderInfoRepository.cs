@@ -6,6 +6,7 @@ namespace Lykke.Service.SmsSender.Core.Domain.SmsProviderInfoRepository
     public interface ISmsProviderInfoRepository
     {
         Task AddAsync(SmsProvider provider, string countryCode, SmsDeliveryStatus status);
-        Task<IEnumerable<ISmsProviderInfo>> GetAllByProvider(SmsProvider provider);
+        Task<IEnumerable<ISmsProviderInfo>> GetAllByProviderAsync(SmsProvider provider);
+        Task<IEnumerable<ISmsProviderInfo>> GetAllAsync();
     }
 }
