@@ -1,1 +1,64 @@
-
+{
+  "SlackNotifications": 
+  {
+    "AzureQueue": 
+    {
+      "ConnectionString": "${lkedevsharedconnstring}",
+      "QueueName": "slack-notifications"
+    },
+    "ThrottlingLimitSeconds": 60
+  },
+  "SmsSenderService": 
+  {
+    "BaseUrl": "https://smssender-dev.lykkex.net",
+    "Db": 
+    {
+      "LogsConnString": "${lkedevsmssenderlogsconnstring}",
+      "DataConnString": "${lkedevsmssenderconnstring}"
+    },
+    "Rabbit": 
+    {
+      "ConnectionString": "${rabbit-spotprices}"
+    },
+    "SmsSettings": 
+    {
+      "DefaultSmsProvider": "Routee",
+      "SmsRetryTimeout": "00:01:00"
+    },
+    "Senders": 
+    {
+      "Twilio": 
+      {
+        "BaseUrl": "https://api.twilio.com/2010-04-01",
+        "ApiKey": "AC2e0ec72ad5fc425845d055ff37daf912",
+        "ApiSecret": "b74da9916ad3aee40e7c34000078ae66",
+        "From": "+1 315-870-1305 ",
+        "FromMap": 
+        {
+        }
+      },
+      "Nexmo": 
+      {
+        "BaseUrl": "https://rest.nexmo.com",
+        "ApiKey": "02913577",
+        "ApiSecret": "4b77fc45c8fe98d9",
+        "From": "Lykkex",
+        "FromMap": 
+        {
+          "US": "RU Sender"
+        }
+      },
+      "Routee": 
+      {
+        "BaseUrl": "https://connect.routee.net/sms",
+        "AuthUrl": "https://auth.routee.net/oauth/token",
+        "ApiKey": "5ae9f3f1e4b0094607875017",
+        "ApiSecret": "5NbWewpgtb",
+        "From": "Lykke",
+        "FromMap": 
+        {
+        }
+      }
+    }
+  }
+}
