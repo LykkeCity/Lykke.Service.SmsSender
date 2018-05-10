@@ -3,58 +3,58 @@
   {
     "AzureQueue": 
     {
-      "ConnectionString": "${lkedevsharedconnstring}",
-      "QueueName": "slack-notifications"
+      "ConnectionString": "${SlackConnString}",
+      "QueueName": "${SlackQueueName}"
     },
-    "ThrottlingLimitSeconds": 60
+    "ThrottlingLimitSeconds": "${SlackThrottlingLimitSeconds}"
   },
   "SmsSenderService": 
   {
-    "BaseUrl": "https://smssender-dev.lykkex.net",
+    "BaseUrl": "${SmsSenderServiceBaseUrl}",
     "Db": 
     {
-      "LogsConnString": "${lkedevsmssenderlogsconnstring}",
-      "DataConnString": "${lkedevsmssenderconnstring}"
+      "LogsConnString": "${SmsSenderServiceLogsConnStr}",
+      "DataConnString": "${SmsSenderServiceDataConnStr}"
     },
     "Rabbit": 
     {
-      "ConnectionString": "${lkedevsmssenderrabbitconnstring}"
+      "ConnectionString": "${SmsSenderServiceRabbitConnStr}"
     },
     "SmsSettings": 
     {
-      "DefaultSmsProvider": "Routee",
-      "SmsRetryTimeout": "00:01:00"
+      "DefaultSmsProvider": "${SmsServiceDefaultSmsProvider}",
+      "SmsRetryTimeout": "${SmsServiceSmsRetryTimeout}"
     },
     "Senders": 
     {
       "Twilio": 
       {
-        "BaseUrl": "https://api.twilio.com/2010-04-01",
-        "ApiKey": "AC2e0ec72ad5fc425845d055ff37daf912",
-        "ApiSecret": "b74da9916ad3aee40e7c34000078ae66",
-        "From": "+1 315-870-1305 ",
+        "BaseUrl": "${TwilioBaseUrl}",
+        "ApiKey": "${TwilioApiKey}",
+        "ApiSecret": "${TwilioApiSecret}",
+        "From": "{TwilioFrom}",
         "FromMap": 
         {
         }
       },
       "Nexmo": 
       {
-        "BaseUrl": "https://rest.nexmo.com",
-        "ApiKey": "02913577",
-        "ApiSecret": "4b77fc45c8fe98d9",
-        "From": "Lykkex",
+        "BaseUrl": "${NexmoBaseUrl}",
+        "ApiKey": "${NexmoApiKey}",
+        "ApiSecret": "${NexmoApiSecret}",
+        "From": "${NexmoFrom}",
         "FromMap": 
         {
-          "US": "RU Sender"
+          "US": "${NexmoFromMapUS}"
         }
       },
       "Routee": 
       {
-        "BaseUrl": "https://connect.routee.net/sms",
-        "AuthUrl": "https://auth.routee.net/oauth/token",
-        "ApiKey": "5ae9f3f1e4b0094607875017",
-        "ApiSecret": "5NbWewpgtb",
-        "From": "Lykke",
+        "BaseUrl": "${RouteeBaseUrl}",
+        "AuthUrl": "${RouteeAuthUrl}",
+        "ApiKey": "${RouteeApiKey}",
+        "ApiSecret": "${RouteeApiSecret}",
+        "From": "${RouteeFrom}",
         "FromMap": 
         {
         }
