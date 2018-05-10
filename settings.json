@@ -32,7 +32,7 @@
         "BaseUrl": "${TwilioBaseUrl}",
         "ApiKey": "${TwilioApiKey}",
         "ApiSecret": "${TwilioApiSecret}",
-        "From": "{TwilioFrom}",
+        "From": "${TwilioFrom}",
         "FromMap": 
         {
         }
