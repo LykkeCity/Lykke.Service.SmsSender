@@ -4,34 +4,34 @@
     "AzureQueue": 
     {
       "ConnectionString": "${SlackConnString}:[AzureTableStorage]",
-      "QueueName": "${SlackQueueName}"
+      "QueueName": "${SlackQueueName}:[AzureTableStorageName]"
     },
-    "ThrottlingLimitSeconds": "${SlackThrottlingLimitSeconds}"
+    "ThrottlingLimitSeconds": "${SlackThrottlingLimitSeconds}:[Timestamp]"
   },
   "SmsSenderService": 
   {
-    "BaseUrl": "${SmsSenderServiceBaseUrl}",
+    "BaseUrl": "${SmsSenderServiceBaseUrl}:[URL]",
     "Db": 
     {
       "LogsConnString": "${SmsSenderServiceLogsConnStr}:[Logs, AzureTableStorage]",
-      "DataConnString": "${SmsSenderServiceDataConnStr}"
+      "DataConnString": "${SmsSenderServiceDataConnStr}:[AzureTableStorage]"
     },
     "Rabbit": 
     {
-      "ConnectionString": "${SmsSenderServiceRabbitConnStr}"
+      "ConnectionString": "${SmsSenderServiceRabbitConnStr}:[RabbitMQ]"
     },
     "SmsSettings": 
     {
       "DefaultSmsProvider": "${SmsServiceDefaultSmsProvider}",
-      "SmsRetryTimeout": "${SmsServiceSmsRetryTimeout}"
+      "SmsRetryTimeout": "${SmsServiceSmsRetryTimeout}:[Timestamp]"
     },
     "Senders": 
     {
       "Twilio": 
       {
-        "BaseUrl": "${TwilioBaseUrl}",
-        "ApiKey": "${TwilioApiKey}",
-        "ApiSecret": "${TwilioApiSecret}",
+        "BaseUrl": "${TwilioBaseUrl}:[URL]",
+        "ApiKey": "${TwilioApiKey}:[Key]",
+        "ApiSecret": "${TwilioApiSecret}:[Secret]",
         "From": "${TwilioFrom}",
         "FromMap": 
         {
@@ -39,9 +39,9 @@
       },
       "Nexmo": 
       {
-        "BaseUrl": "${NexmoBaseUrl}",
-        "ApiKey": "${NexmoApiKey}",
-        "ApiSecret": "${NexmoApiSecret}",
+        "BaseUrl": "${NexmoBaseUrl}:[URL]",
+        "ApiKey": "${NexmoApiKey}:[Key]",
+        "ApiSecret": "${NexmoApiSecret}:[Secret]",
         "From": "${NexmoFrom}",
         "FromMap": 
         {
@@ -50,10 +50,10 @@
       },
       "Routee": 
       {
-        "BaseUrl": "${RouteeBaseUrl}",
-        "AuthUrl": "${RouteeAuthUrl}",
-        "ApiKey": "${RouteeApiKey}",
-        "ApiSecret": "${RouteeApiSecret}",
+        "BaseUrl": "${RouteeBaseUrl}:[URL]",
+        "AuthUrl": "${RouteeAuthUrl}:[URL]",
+        "ApiKey": "${RouteeApiKey}:[Key]",
+        "ApiSecret": "${RouteeApiSecret}:[Secret]",
         "From": "${RouteeFrom}",
         "FromMap": 
         {
