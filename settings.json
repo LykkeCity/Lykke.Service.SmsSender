@@ -13,7 +13,7 @@
     "BaseUrl": "${SmsSenderServiceBaseUrl}",
     "Db": 
     {
-      "LogsConnString": "${SmsSenderServiceLogsConnStr}:[Logs]",
+      "LogsConnString": "${SmsSenderServiceLogsConnStr}:[Logs, AzureTableStorage]",
       "DataConnString": "${SmsSenderServiceDataConnStr}"
     },
     "Rabbit": 
