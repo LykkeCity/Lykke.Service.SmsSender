@@ -4,7 +4,7 @@
     "AzureQueue": 
     {
       "ConnectionString": "${SlackConnString}:[AzureTableStorage]",
-      "QueueName": "${SlackQueueName}:[AzureTableStorageName]"
+      "QueueName": "${SlackQueueName}:[Name]"
     },
     "ThrottlingLimitSeconds": "${SlackThrottlingLimitSeconds}:[Timestamp]"
   },
