@@ -3,7 +3,7 @@
   {
     "AzureQueue": 
     {
-      "ConnectionString": "${SlackConnString}",
+      "ConnectionString": "${SlackConnString}:[AzureTableStorage]",
       "QueueName": "${SlackQueueName}"
     },
     "ThrottlingLimitSeconds": "${SlackThrottlingLimitSeconds}"
@@ -13,7 +13,7 @@
     "BaseUrl": "${SmsSenderServiceBaseUrl}",
     "Db": 
     {
-      "LogsConnString": "${SmsSenderServiceLogsConnStr}",
+      "LogsConnString": "${SmsSenderServiceLogsConnStr}:[Logs]",
       "DataConnString": "${SmsSenderServiceDataConnStr}"
     },
     "Rabbit": 
