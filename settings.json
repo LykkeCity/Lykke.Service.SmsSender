@@ -1,0 +1,64 @@
+{
+  "SlackNotifications": 
+  {
+    "AzureQueue": 
+    {
+      "ConnectionString": "${SlackConnString}:[AzureTableStorage]",
+      "QueueName": "${SlackQueueName}:[Name]"
+    },
+    "ThrottlingLimitSeconds": "${SlackThrottlingLimitSeconds}:[Timestamp]"
+  },
+  "SmsSenderService": 
+  {
+    "BaseUrl": "${SmsSenderServiceBaseUrl}:[URL]",
+    "Db": 
+    {
+      "LogsConnString": "${SmsSenderServiceLogsConnStr}:[Logs, AzureTableStorage]",
+      "DataConnString": "${SmsSenderServiceDataConnStr}:[AzureTableStorage]"
+    },
+    "Rabbit": 
+    {
+      "ConnectionString": "${SmsSenderServiceRabbitConnStr}:[RabbitMQ]"
+    },
+    "SmsSettings": 
+    {
+      "DefaultSmsProvider": "${SmsServiceDefaultSmsProvider}",
+      "SmsRetryTimeout": "${SmsServiceSmsRetryTimeout}:[Timestamp]"
+    },
+    "Senders": 
+    {
+      "Twilio": 
+      {
+        "BaseUrl": "${TwilioBaseUrl}:[URL]",
+        "ApiKey": "${TwilioApiKey}:[Secret]",
+        "ApiSecret": "${TwilioApiSecret}:[Secret]",
+        "From": "${TwilioFrom}",
+        "FromMap": 
+        {
+        }
+      },
+      "Nexmo": 
+      {
+        "BaseUrl": "${NexmoBaseUrl}:[URL]",
+        "ApiKey": "${NexmoApiKey}:[Secret]",
+        "ApiSecret": "${NexmoApiSecret}:[Secret]",
+        "From": "${NexmoFrom}",
+        "FromMap": 
+        {
+          "US": "${NexmoFromMapUS}"
+        }
+      },
+      "Routee": 
+      {
+        "BaseUrl": "${RouteeBaseUrl}:[URL]",
+        "AuthUrl": "${RouteeAuthUrl}:[URL]",
+        "ApiKey": "${RouteeApiKey}:[Secret]",
+        "ApiSecret": "${RouteeApiSecret}:[Secret]",
+        "From": "${RouteeFrom}",
+        "FromMap": 
+        {
+        }
+      }
+    }
+  }
+}
