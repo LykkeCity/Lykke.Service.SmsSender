@@ -30,7 +30,7 @@
       "Twilio": 
       {
         "BaseUrl": "${TwilioBaseUrl}:[URL]",
-        "ApiKey": "${TwilioApiKey}:[Key]",
+        "ApiKey": "${TwilioApiKey}:[Secret]",
         "ApiSecret": "${TwilioApiSecret}:[Secret]",
         "From": "${TwilioFrom}",
         "FromMap": 
@@ -40,7 +40,7 @@
       "Nexmo": 
       {
         "BaseUrl": "${NexmoBaseUrl}:[URL]",
-        "ApiKey": "${NexmoApiKey}:[Key]",
+        "ApiKey": "${NexmoApiKey}:[Secret]",
         "ApiSecret": "${NexmoApiSecret}:[Secret]",
         "From": "${NexmoFrom}",
         "FromMap": 
@@ -52,7 +52,7 @@
       {
         "BaseUrl": "${RouteeBaseUrl}:[URL]",
         "AuthUrl": "${RouteeAuthUrl}:[URL]",
-        "ApiKey": "${RouteeApiKey}:[Key]",
+        "ApiKey": "${RouteeApiKey}:[Secret]",
         "ApiSecret": "${RouteeApiSecret}:[Secret]",
         "From": "${RouteeFrom}",
         "FromMap": 
