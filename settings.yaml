@@ -44,6 +44,8 @@ SmsSenderService:
                 - Optional
         ApiKey:
             settings-key: SmsSenderService-NexmoApiKey
+            types:
+                - String
         ApiSecret:
             settings-key: SmsSenderService-NexmoApiSecret
         From:
