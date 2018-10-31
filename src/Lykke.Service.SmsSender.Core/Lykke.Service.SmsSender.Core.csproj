@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>Lykke.Service.SmsSender.Core</AssemblyName>
     <RootNamespace>Lykke.Service.SmsSender.Core</RootNamespace>
     <Version>1.0.0</Version>
@@ -9,8 +9,8 @@
     <Folder Include="Domain\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Lykke.Common" Version="6.3.0" />
-    <PackageReference Include="Lykke.Cqrs" Version="4.4.0" />
-    <PackageReference Include="Lykke.SettingsReader" Version="2.2.0" />
+    <PackageReference Include="Lykke.Common" Version="7.3.0" />
+    <PackageReference Include="Lykke.SettingsReader" Version="4.1.1" />
+    <PackageReference Include="protobuf-net" Version="2.3.14" />
   </ItemGroup>
 </Project>
