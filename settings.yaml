@@ -1,5 +1,6 @@
 SmsSenderService:
-    BaseUrl: https://smssender-dev.lykkex.net
+    BaseUrl:
+      settings-key: SmsSenderService-BaseUrl
     Db: 
       LogsConnString:
         settings-key: SmsSenderService-LogsConnString
