@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Common;
+﻿using Common;
 using Common.Log;
 using Lykke.Cqrs;
 using Lykke.Service.SmsSender.Sagas.Commands;
@@ -16,7 +15,7 @@ namespace Lykke.Service.SmsSender.Sagas
             _log = log;
         }
         
-        public async Task Handle(SmsProviderProcessed evt, ICommandSender commandSender)
+        public void Handle(SmsProviderProcessed evt, ICommandSender commandSender)
         {
             _log.WriteInfo(nameof(SmsProviderProcessed), new { Phone = evt.Phone.SanitizePhone(), evt.Id, evt.Provider, evt.CountryCode}, "Sms processed");
 
@@ -31,8 +30,8 @@ namespace Lykke.Service.SmsSender.Sagas
 
             commandSender.SendCommand(sendSmsCommand, "sms");
         }
-        
-        public async Task Handle(SmsMessageDeliveryFailed evt, ICommandSender commandSender)
+
+        public void Handle(SmsMessageDeliveryFailed evt, ICommandSender commandSender)
         {
             _log.WriteInfo(nameof(SmsMessageDeliveryFailed), new
             {

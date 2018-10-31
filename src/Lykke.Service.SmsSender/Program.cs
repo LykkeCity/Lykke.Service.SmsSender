@@ -5,9 +5,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using AzureStorage.Blob;
 using Common;
+using Lykke.Common;
 using Lykke.SettingsReader.ReloadingManager;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Lykke.Service.SmsSender
 {
@@ -15,9 +15,9 @@ namespace Lykke.Service.SmsSender
     {
         public static string EnvInfo => Environment.GetEnvironmentVariable("ENV_INFO");
 
-        public static async Task Main(string[] args)
+        public static async Task Main()
         {
-            Console.WriteLine($"{PlatformServices.Default.Application.ApplicationName} version {PlatformServices.Default.Application.ApplicationVersion}");
+            Console.WriteLine($"{AppEnvironment.Name} version {AppEnvironment.Version}");
 #if DEBUG
             Console.WriteLine("Is DEBUG");
 #else
@@ -32,13 +32,15 @@ namespace Lykke.Service.SmsSender
                 if (string.IsNullOrWhiteSpace(sertConnString) || sertConnString.Length < 10)
                 {
 
-                    var host = new WebHostBuilder()
+                    var hostBuilder = new WebHostBuilder()
                         .UseKestrel()
                         .UseContentRoot(Directory.GetCurrentDirectory())
-                        .UseApplicationInsights()
                         .UseUrls("http://*:5000/")
-                        .UseStartup<Startup>()
-                        .Build();
+                        .UseStartup<Startup>();
+#if !DEBUG
+                    hostBuilder = hostBuilder.UseApplicationInsights();
+#endif
+                    var host = hostBuilder.Build();
 
                     host.Run();
 
@@ -54,7 +56,7 @@ namespace Lykke.Service.SmsSender
 
                     X509Certificate2 xcert = new X509Certificate2(cert, sertPassword);
 
-                    var host = new WebHostBuilder()
+                    var hostBuilder = new WebHostBuilder()
                         .UseKestrel(x =>
                         {
                             x.AddServerHeader = false;
@@ -65,10 +67,12 @@ namespace Lykke.Service.SmsSender
                             });
                         })
                         .UseContentRoot(Directory.GetCurrentDirectory())
-                        .UseApplicationInsights()
                         .UseUrls("https://*:443/")
-                        .UseStartup<Startup>()
-                        .Build();
+                        .UseStartup<Startup>();
+#if !DEBUG
+                    hostBuilder = hostBuilder.UseApplicationInsights();
+#endif
+                    var host = hostBuilder.Build();
 
                     host.Run();
                 }

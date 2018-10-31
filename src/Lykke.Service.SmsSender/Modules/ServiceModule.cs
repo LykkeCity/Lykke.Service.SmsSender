@@ -8,6 +8,7 @@ using Lykke.Cqrs;
 using Lykke.Cqrs.Configuration;
 using Lykke.Messaging;
 using Lykke.Messaging.RabbitMq;
+using Lykke.Messaging.Serialization;
 using Lykke.Service.SmsSender.AzureRepositories.SmsProviderInfoRepository;
 using Lykke.Service.SmsSender.AzureRepositories.SmsRepository;
 using Lykke.Service.SmsSender.AzureRepositories.SmsSenderSettings;
@@ -148,7 +149,7 @@ namespace Lykke.Service.SmsSender.Modules
                 new DefaultEndpointProvider(),
                 true,
 
-                Register.DefaultEndpointResolver(new RabbitMqConventionEndpointResolver("RabbitMq", "protobuf", environment: _env.EnvironmentName)),
+                Register.DefaultEndpointResolver(new RabbitMqConventionEndpointResolver("RabbitMq", SerializationFormat.ProtoBuf, environment: _env.EnvironmentName)),
                 
                 Register.BoundedContext("sms")
                     .FailedCommandRetryDelay((long)TimeSpan.FromSeconds(10).TotalMilliseconds)
