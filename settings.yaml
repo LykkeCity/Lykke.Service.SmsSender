@@ -1,0 +1,85 @@
+SmsSenderService:
+    BaseUrl:
+      settings-key: SmsSenderService-BaseUrl
+    Db: 
+      LogsConnString:
+        settings-key: SmsSenderService-LogsConnString
+        types:
+            - AzureTableStorage
+      DataConnString:
+        settings-key: SmsSenderService-DataConnString
+        types:
+            - AzureTableStorage
+    Rabbit: 
+      ConnectionString:
+        settings-key: RabbitSagasConnString
+        types:
+            - RabbitMq
+    SmsSettings: 
+      DefaultSmsProvider: Routee
+      SmsRetryTimeout: 00:01:00
+    Senders: 
+      Twilio: 
+        BaseUrl: https://api.twilio.com/2010-04-01
+        AuthUrl:
+            settings-key: SmsSenderService-TwilioAuthUrl
+            types:
+                - Optional
+        ApiKey:
+            settings-key: SmsSenderService-TwilioApiKey
+        ApiSecret:
+            settings-key: SmsSenderService-TwilioApiSecret
+        From:
+            settings-key: SmsSenderService-TwilioFrom
+        FromMap:
+            settings-key: SmsSenderService-TwilioFromMap
+            types:
+                - Json
+                - Optional
+      Nexmo: 
+        BaseUrl: https://rest.nexmo.com
+        AuthUrl:
+            settings-key: SmsSenderService-NexmoAuthUrl
+            types:
+                - Optional
+        ApiKey:
+            settings-key: SmsSenderService-NexmoApiKey
+            types:
+                - String
+        ApiSecret:
+            settings-key: SmsSenderService-NexmoApiSecret
+        From:
+            settings-key: SmsSenderService-NexmoFrom
+        FromMap:
+            settings-key: SmsSenderService-NexmoFromMap
+            types:
+                - Json
+                - Optional
+      Routee: 
+        BaseUrl: https://connect.routee.net/sms
+        AuthUrl:
+            settings-key: SmsSenderService-RouteeAuthUrl
+            types:
+                - Optional
+        ApiKey:
+            settings-key: SmsSenderService-RouteeApiKey
+        ApiSecret:
+            settings-key: SmsSenderService-RouteeApiSecret
+        From:
+            settings-key: SmsSenderService-RouteeFrom
+        FromMap:
+            settings-key: SmsSenderService-RouteeFromMap
+            types:
+                - Json
+                - Optional
+SlackNotifications:
+    AzureQueue:
+        ConnectionString:
+            settings-key: SlackNotificationsConnString
+            types:
+                - AzureTableStorage
+        QueueName:
+            settings-key: SlackQueueName
+MonitoringServiceClient:
+    MonitoringServiceUrl:
+        settings-key: MonitoringServiceUrl

@@ -42,7 +42,7 @@ namespace Lykke.Service.SmsSender.Controllers
 
             if (phone == null)
             {
-                ModelState.AddModelError(nameof(model.Phone), "invalid phone number");
+                ModelState.AddModelError(nameof(model.Phone), $"Invalid phone number - '{model.Phone}'");
                 return BadRequest(ModelState.GetError());
             }
             
