@@ -17,8 +17,9 @@ namespace Lykke.Service.SmsSender.Extensions
                     .Select(e => e.ErrorMessage)
                     .Concat(state.Value.Errors
                         .Where(e => string.IsNullOrWhiteSpace(e.ErrorMessage))
-                        .Select(e => e.Exception.Message))
-                    .ToList().FirstOrDefault();
+                        .Select(e => $"{e.Exception.Message} : '{state.Value.RawValue}'"))
+                    .ToList()
+                    .FirstOrDefault();
 
                 if (string.IsNullOrEmpty(message))
                     continue;
