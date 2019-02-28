@@ -1,16 +1,14 @@
 ﻿using System;
 using Autofac;
-using Common.Log;
 
 namespace Lykke.Service.SmsSender.Client
 {
     public static class AutofacExtension
     {
-        public static void RegisterSmsSenderClient(this ContainerBuilder builder, string serviceUrl, ILog log)
+        public static void RegisterSmsSenderClient(this ContainerBuilder builder, string serviceUrl)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (serviceUrl == null) throw new ArgumentNullException(nameof(serviceUrl));
-            if (log == null) throw new ArgumentNullException(nameof(log));
             if (string.IsNullOrWhiteSpace(serviceUrl))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(serviceUrl));
 
@@ -20,9 +18,9 @@ namespace Lykke.Service.SmsSender.Client
                 .SingleInstance();
         }
 
-        public static void RegisterSmsSenderClient(this ContainerBuilder builder, SmsSenderServiceClientSettings settings, ILog log)
+        public static void RegisterSmsSenderClient(this ContainerBuilder builder, SmsSenderServiceClientSettings settings)
         {
-            builder.RegisterSmsSenderClient(settings?.ServiceUrl, log);
+            builder.RegisterSmsSenderClient(settings?.ServiceUrl);
         }
     }
 }
