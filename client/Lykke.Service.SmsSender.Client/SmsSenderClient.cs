@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.Log;
 using Lykke.Service.SmsSender.Client.AutorestClient;
 using Lykke.Service.SmsSender.Client.AutorestClient.Models;
 using Microsoft.Rest;
@@ -9,12 +8,10 @@ namespace Lykke.Service.SmsSender.Client
 {
     public class SmsSenderClient : ISmsSenderClient, IDisposable
     {
-        private readonly ILog _log;
         private SmsSenderAPI _service;
 
-        public SmsSenderClient(string serviceUrl, ILog log)
+        public SmsSenderClient(string serviceUrl)
         {
-            _log = log;
             _service = new SmsSenderAPI(new Uri(serviceUrl));
         }
 
