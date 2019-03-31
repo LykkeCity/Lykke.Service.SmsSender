@@ -9,7 +9,7 @@
     <Folder Include="Domain\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Lykke.Common" Version="7.3.0" />
+    <PackageReference Include="Lykke.Common" Version="7.3.1" />
     <PackageReference Include="Lykke.SettingsReader" Version="4.1.1" />
     <PackageReference Include="protobuf-net" Version="2.3.14" />
   </ItemGroup>
