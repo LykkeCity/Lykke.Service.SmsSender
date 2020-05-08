@@ -3,7 +3,6 @@
     public enum SmsProvider
     {
         Nexmo,
-        Twilio,
-        Routee
+        Twilio
     }
 }

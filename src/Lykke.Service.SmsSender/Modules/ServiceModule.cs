@@ -21,7 +21,6 @@ using Lykke.Service.SmsSender.Sagas.Commands;
 using Lykke.Service.SmsSender.Sagas.Events;
 using Lykke.Service.SmsSender.Services;
 using Lykke.Service.SmsSender.Services.SmsSenders.Nexmo;
-using Lykke.Service.SmsSender.Services.SmsSenders.Routee;
 using Lykke.Service.SmsSender.Services.SmsSenders.Twilio;
 using Lykke.SettingsReader;
 using Microsoft.AspNetCore.Hosting;
@@ -60,31 +59,25 @@ namespace Lykke.Service.SmsSender.Modules
                 .SingleInstance();
 
             builder.RegisterInstance(_settings.CurrentValue.SmsSettings).SingleInstance();
-            
+
             builder.RegisterType<SettingsService>()
                 .As<ISettingsService>()
                 .WithParameter(TypedParameter.From(_settings.CurrentValue.SmsSettings.DefaultSmsProvider))
                 .SingleInstance();
-            
+
             builder.RegisterType<SmsSenderFactory>()
                 .As<ISmsSenderFactory>()
                 .SingleInstance();
-            
+
             builder.RegisterType<TwilioSmsSender>()
                 .As<ISmsSender>()
                 .WithParameter(TypedParameter.From(_settings.CurrentValue.Senders.Twilio))
                 .WithParameter("baseUrl", _settings.CurrentValue.BaseUrl)
                 .SingleInstance();
-            
+
             builder.RegisterType<NexmoSmsSender>()
                 .As<ISmsSender>()
                 .WithParameter(TypedParameter.From(_settings.CurrentValue.Senders.Nexmo))
-                .WithParameter("baseUrl", _settings.CurrentValue.BaseUrl)
-                .SingleInstance();
-            
-            builder.RegisterType<RouteeSmsSender>()
-                .As<ISmsSender>()
-                .WithParameter(TypedParameter.From(_settings.CurrentValue.Senders.Routee))
                 .WithParameter("baseUrl", _settings.CurrentValue.BaseUrl)
                 .SingleInstance();
 
@@ -93,23 +86,23 @@ namespace Lykke.Service.SmsSender.Modules
                     AzureTableStorage<SmsSenderSettingsEntity>.Create(
                         _settings.ConnectionString(x => x.Db.DataConnString), "SmsSenderSettings", _log))
             ).SingleInstance();
-            
+
             builder.RegisterInstance<ISmsRepository>(
                 new SmsRepository(
                     AzureTableStorage<SmsMessageEntity>.Create(
                         _settings.ConnectionString(x => x.Db.DataConnString), "SmsMessages", _log),
                 AzureTableStorage<AzureIndex>.Create(_settings.ConnectionString(x => x.Db.DataConnString), "SmsMessages", _log))
             ).SingleInstance();
-            
+
             builder.RegisterInstance<ISmsProviderInfoRepository>(
                 new SmsProviderInfoRepository(
                     AzureTableStorage<SmsProviderInfoEntity>.Create(
                         _settings.ConnectionString(x => x.Db.DataConnString), "SmsProvierInfo", _log))
             ).SingleInstance();
-            
+
             RegisterSagas(builder);
         }
-        
+
         private void RegisterSagas(ContainerBuilder builder)
         {
             var rabbitMqSettings = new RabbitMQ.Client.ConnectionFactory { Uri = _settings.CurrentValue.Rabbit.ConnectionString };
@@ -120,7 +113,7 @@ namespace Lykke.Service.SmsSender.Modules
                     {"RabbitMq", new TransportInfo(rabbitMqSettings.Endpoint.ToString(), rabbitMqSettings.UserName, rabbitMqSettings.Password, "None", "RabbitMq")}
                 }),
                 new RabbitMqTransportFactory());
-            
+
             builder.RegisterType<SmsSaga>();
 
             builder.RegisterType<SmsCommandHandler>();
@@ -129,9 +122,9 @@ namespace Lykke.Service.SmsSender.Modules
 
             var smsCommands = new[]
             {
-                typeof(ProcessSmsCommand), 
-                typeof(SendSmsCommand), 
-                typeof(SmsDeliveredCommand), 
+                typeof(ProcessSmsCommand),
+                typeof(SendSmsCommand),
+                typeof(SmsDeliveredCommand),
                 typeof(SmsNotDeliveredCommand),
                 typeof(SmsDeliveryUnknownCommand)
             };
@@ -149,7 +142,7 @@ namespace Lykke.Service.SmsSender.Modules
                 true,
 
                 Register.DefaultEndpointResolver(new RabbitMqConventionEndpointResolver("RabbitMq", "protobuf", environment: _env.EnvironmentName)),
-                
+
                 Register.BoundedContext("sms")
                     .FailedCommandRetryDelay((long)TimeSpan.FromSeconds(10).TotalMilliseconds)
                     .ListeningCommands(smsCommands)

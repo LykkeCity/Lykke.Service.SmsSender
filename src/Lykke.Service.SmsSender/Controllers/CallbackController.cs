@@ -4,7 +4,6 @@ using Lykke.Cqrs;
 using Lykke.Service.SmsSender.Core.Domain.SmsRepository;
 using Lykke.Service.SmsSender.Models;
 using Lykke.Service.SmsSender.Sagas.Commands;
-using Lykke.Service.SmsSender.Services.SmsSenders.Routee;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lykke.Service.SmsSender.Controllers
@@ -34,9 +33,9 @@ namespace Lykke.Service.SmsSender.Controllers
         {
             if (model == null)
                 return Ok();
-            
+
             _log.WriteInfo(nameof(TwilioCallback), model.Sanitize(), "Twilio callback");
-            
+
             if (!string.IsNullOrEmpty(model.MessageSid))
             {
                 var sms = await _smsRepository.GetByMessageIdAsync(model.MessageSid);
@@ -46,7 +45,7 @@ namespace Lykke.Service.SmsSender.Controllers
                     _log.WriteInfo(nameof(TwilioCallback), model.MessageSid, $"Sms message with messageId = {model.MessageSid} not found");
                     return Ok();
                 }
-                
+
                 switch (model.MessageStatus)
                 {
                     case TwilioMessageStatus.Delivered:
@@ -72,9 +71,9 @@ namespace Lykke.Service.SmsSender.Controllers
         {
             if (model == null)
                 return Ok();
-            
+
             _log.WriteInfo(nameof(NexmoCallback), model, "Nexmo callback");
-            
+
             if (!string.IsNullOrEmpty(model.MessageId))
             {
                 var sms = await _smsRepository.GetByMessageIdAsync(model.MessageId);
@@ -97,46 +96,6 @@ namespace Lykke.Service.SmsSender.Controllers
                         break;
                     case NexmoMessageStatus.Unknown:
                         _cqrsEngine.SendCommand(new SmsDeliveryUnknownCommand {Message = sms, Error = $"status = {model.Status}, error = {model.ErrorCode}"}, "sms", "sms");
-                        break;
-                    default:
-                        _log.WriteWarning(nameof(NexmoCallback), model.MessageId, $"status = {model.Status}, callback processing is skipped");
-                        break;
-                }
-            }
-
-            return Ok();
-        }
-        
-        [HttpPost]
-        [Route("routee")]
-        public async Task<IActionResult> RouteeCallback([FromBody]RouteeCallbackModel model)
-        {
-            if (model == null)
-                return Ok();
-            
-            _log.WriteInfo(nameof(RouteeCallback), model, "Routee callback");
-            
-            if (!string.IsNullOrEmpty(model.MessageId))
-            {
-                var sms = await _smsRepository.GetByMessageIdAsync(model.MessageId);
-
-                if (sms == null)
-                {
-                    _log.WriteInfo(nameof(RouteeCallback), model.MessageId, $"Sms message with messageId = {model.MessageId} not found");
-                    return Ok();
-                }
-
-                switch (model.Status.Name)
-                {
-                    case RouteeStaus.Delivered:
-                        _cqrsEngine.SendCommand(new SmsDeliveredCommand {Message = sms}, "sms", "sms");
-                        break;
-                    case RouteeStaus.Undelivered:
-                    case RouteeStaus.Failed:
-                        if (model.Status.Reason?.DetailedStatus == RouteeDetailedStatus.UnknownStatus)
-                            _cqrsEngine.SendCommand(new SmsDeliveryUnknownCommand {Message = sms, Error = $"status = {model.Status.Name}, error = {model.Status.Reason?.DetailedStatus} : {model.Status.Reason?.Description}"}, "sms", "sms");
-                        else    
-                            _cqrsEngine.SendCommand(new SmsNotDeliveredCommand {Message = sms, Error = $"status = {model.Status.Name}, error = {model.Status.Reason?.DetailedStatus} : {model.Status.Reason?.Description}"}, "sms", "sms");
                         break;
                     default:
                         _log.WriteWarning(nameof(NexmoCallback), model.MessageId, $"status = {model.Status}, callback processing is skipped");

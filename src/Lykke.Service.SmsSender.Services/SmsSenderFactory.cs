@@ -3,7 +3,6 @@ using System.Linq;
 using Lykke.Service.SmsSender.Core.Domain;
 using Lykke.Service.SmsSender.Core.Services;
 using Lykke.Service.SmsSender.Services.SmsSenders.Nexmo;
-using Lykke.Service.SmsSender.Services.SmsSenders.Routee;
 using Lykke.Service.SmsSender.Services.SmsSenders.Twilio;
 
 namespace Lykke.Service.SmsSender.Services
@@ -25,8 +24,6 @@ namespace Lykke.Service.SmsSender.Services
                     return _smsSenders.FirstOrDefault(item => item is NexmoSmsSender);
                 case SmsProvider.Twilio:
                     return _smsSenders.FirstOrDefault(item => item is TwilioSmsSender);
-                case SmsProvider.Routee:
-                    return _smsSenders.FirstOrDefault(item => item is RouteeSmsSender);
                 default:
                     return null;
             }
