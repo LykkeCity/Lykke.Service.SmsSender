@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
@@ -13,7 +15,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
         private readonly string _baseUrl;
         private readonly ProviderSettings _settings;
         private readonly ILog _log;
-        
+
         public NexmoSmsSender(
             string baseUrl,
             ProviderSettings settings,
@@ -28,44 +30,53 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
         {
             try
             {
+                var sw = new Stopwatch();
+                _log.WriteInfo(nameof(SendSmsAsync), new {Phone = phone.SanitizePhone(), CountryCode = countryCode},
+                    $"Sending sms to nexmo endpoint {_settings.BaseUrl}/sms/json");
+
+                sw.Start();
                 var response = await $"{_settings.BaseUrl}/sms/json"
-                .PostUrlEncodedAsync(new
-                {
-                    to = phone,
-                    from = _settings.GetFrom(countryCode),
-                    text = message,
-                    api_key = _settings.ApiKey,
-                    api_secret = _settings.ApiSecret,
-                    callback = $"{_baseUrl}/callback/nexmo"
-                }).ReceiveJson<NexmoResponse>();
+                    .WithTimeout(10)
+                    .PostUrlEncodedAsync(new
+                    {
+                        to = phone,
+                        from = _settings.GetFrom(countryCode),
+                        text = message,
+                        api_key = _settings.ApiKey,
+                        api_secret = _settings.ApiSecret,
+                        callback = $"{_baseUrl}/callback/nexmo"
+                    }).ReceiveJson<NexmoResponse>();
+
+                sw.Stop();
+
+                _log.WriteInfo(nameof(SendSmsAsync), new {messagesCount = response.MessagesCount, ElapsedMsec = sw.ElapsedMilliseconds },
+                    $"Sms has been sent to nexmo endpoint {_settings.BaseUrl}/sms/json");
 
                 if (response.MessagesCount > 0)
                 {
                     var errors = response.Messages
                         .Where(item => item.Status != NexmoStatus.Ok)
                         .Select(item => new
-                            {
-                                Phone = phone.SanitizePhone(),
-                                item.Status,
-                                item.Error,
-                                item.RemainingBalance
-                            })
+                        {
+                            Phone = phone.SanitizePhone(), item.Status, item.Error, item.RemainingBalance
+                        })
                         .ToList();
 
                     if (errors.Any())
                     {
-                        var notEnoughFunds = errors.FirstOrDefault(item => item.Status == NexmoStatus.PartnerQuotaExceeded);
+                        var notEnoughFunds =
+                            errors.FirstOrDefault(item => item.Status == NexmoStatus.PartnerQuotaExceeded);
 
                         if (notEnoughFunds != null)
                             _log.WriteError(nameof(SendSmsAsync), notEnoughFunds);
                         else
                             _log.WriteWarning(nameof(SendSmsAsync), errors, "error sending sms");
                     }
-                
+
                     return response.Messages.FirstOrDefault(item => item.Status == NexmoStatus.Ok)?.MessageId;
                 }
             }
-            catch (FlurlHttpException ex)
+            catch (Exception ex)
             {
                 _log.WriteWarning(nameof(SendSmsAsync), ex.Message, "nexmo: error sending sms", ex);
             }
