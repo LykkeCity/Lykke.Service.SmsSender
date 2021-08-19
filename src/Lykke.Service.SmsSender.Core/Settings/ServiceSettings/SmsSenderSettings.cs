@@ -17,5 +17,6 @@ namespace Lykke.Service.SmsSender.Core.Settings.ServiceSettings
     {
         public SmsProvider DefaultSmsProvider { get; set; }
         public TimeSpan SmsRetryTimeout { get; set; }
+        public TimeSpan SmsSendDelay { get; set; }
     }
 }
