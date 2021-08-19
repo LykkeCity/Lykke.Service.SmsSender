@@ -45,7 +45,7 @@ namespace Lykke.Service.SmsSender.Sagas
             _log.WriteInfo(nameof(ProcessSmsCommand), new { Phone = command.Phone.SanitizePhone() }, "Processing sms");
 
             var phone = command.Phone.GetValidPhone();
-            
+
             if (phone != null)
             {
                 var phoneUtils = PhoneNumberUtil.GetInstance();
@@ -90,18 +90,18 @@ namespace Lykke.Service.SmsSender.Sagas
                 _log.WriteInfo(nameof(SendSmsCommand), msg, $"Sms message with messageId = {command.Id} not found");
                 return CommandHandlingResult.Ok();
             }
-            
+
             if (message.IsExpired(_smsSettings.SmsRetryTimeout))
             {
                 await _smsRepository.DeleteAsync(message.Id, message.MessageId);
                 _log.WriteInfo(nameof(SendSmsCommand), msg, "Sms message expired and has been deleted");
                 return CommandHandlingResult.Ok();
             }
-            
+
             var sender = _smsSenderFactory.GetSender(command.Provider);
 
             _log.WriteInfo(nameof(SendSmsCommand), msg, "Sending sms");
-            
+
             try
             {
                 string messageId = await sender.SendSmsAsync(command.Phone, command.Message, command.CountryCode);
@@ -120,7 +120,7 @@ namespace Lykke.Service.SmsSender.Sagas
             catch (Exception)
             {
                 await _smsProviderInfoRepository.AddAsync(command.Provider, command.CountryCode, SmsDeliveryStatus.Failed);
-                return CommandHandlingResult.Fail(TimeSpan.FromSeconds(5));
+                return CommandHandlingResult.Fail(_smsSettings.SmsSendDelay);
             }
 
             return CommandHandlingResult.Ok();
@@ -132,10 +132,10 @@ namespace Lykke.Service.SmsSender.Sagas
                 command.Message.MessageId, command.Message.Provider, command.Message.CountryCode }, "Sms delivered");
             await _smsProviderInfoRepository.AddAsync(command.Message.Provider, command.Message.CountryCode, SmsDeliveryStatus.Delivered);
             await _smsRepository.DeleteAsync(command.Message.Id, command.Message.MessageId);
-            
+
             return CommandHandlingResult.Ok();
         }
-        
+
         public async Task<CommandHandlingResult> Handle(SmsNotDeliveredCommand command, IEventPublisher eventPublisher)
         {
             _log.WriteWarning(nameof(SmsNotDeliveredCommand), new { Phone = command.Message.Phone.SanitizePhone(), command.Message.Id, command.Message.MessageId,
@@ -150,10 +150,10 @@ namespace Lykke.Service.SmsSender.Sagas
             {
                 eventPublisher.PublishEvent(new SmsMessageDeliveryFailed{ Message = command.Message});
             }
-            
+
             return CommandHandlingResult.Ok();
         }
-        
+
         public async Task<CommandHandlingResult> Handle(SmsDeliveryUnknownCommand command, IEventPublisher eventPublisher)
         {
             _log.WriteWarning(nameof(SmsDeliveryUnknownCommand), new { Phone = command.Message.Phone.SanitizePhone(), command.Message.Id, command.Message.MessageId,
@@ -161,7 +161,7 @@ namespace Lykke.Service.SmsSender.Sagas
 
             await _smsProviderInfoRepository.AddAsync(command.Message.Provider, command.Message.CountryCode, SmsDeliveryStatus.Unknown);
             await _smsRepository.DeleteAsync(command.Message.Id, command.Message.MessageId);
-            
+
             return CommandHandlingResult.Ok();
         }
     }
