@@ -23,7 +23,7 @@ namespace Lykke.Service.SmsSender.Extensions
             }
             catch (Exception e)
             {
-                log.WriteError(nameof(GetValidPhone),  new {phone}, e);
+                log.WriteWarning(nameof(GetValidPhone),  new {phone}, "Error while phone validity check", e);
                 return null;
             }
         }
