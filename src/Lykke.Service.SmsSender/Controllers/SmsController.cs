@@ -54,7 +54,7 @@ namespace Lykke.Service.SmsSender.Controllers
 
             try
             {
-                _cqrsEngine.SendCommand(new ProcessSmsCommand {Message = model.Message, Phone = model.Phone}, "sms", "sms");
+                _cqrsEngine.SendCommand(new ProcessSmsCommand {Message = model.Message, Phone = model.Phone.Replace(" ","")}, "sms", "sms");
                 return Ok();
             }
             catch (Exception ex)
