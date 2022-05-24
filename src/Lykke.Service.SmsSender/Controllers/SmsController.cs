@@ -38,7 +38,7 @@ namespace Lykke.Service.SmsSender.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.GetError());
 
-            var phone = model.Phone.GetValidPhone();
+            var phone = model.Phone.GetValidPhone(_log);
 
             if (phone == null)
             {
@@ -54,7 +54,7 @@ namespace Lykke.Service.SmsSender.Controllers
 
             try
             {
-                _cqrsEngine.SendCommand(new ProcessSmsCommand {Message = model.Message, Phone = model.Phone}, "sms", "sms");
+                _cqrsEngine.SendCommand(new ProcessSmsCommand {Message = model.Message, Phone = model.Phone.Replace(" ","").Trim()}, "sms", "sms");
                 return Ok();
             }
             catch (Exception ex)
