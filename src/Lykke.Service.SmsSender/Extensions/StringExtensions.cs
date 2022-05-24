@@ -1,11 +1,12 @@
 ﻿using System;
+using Common.Log;
 using PhoneNumbers;
 
 namespace Lykke.Service.SmsSender.Extensions
 {
     public static class StringExtensions
     {
-        public static PhoneNumber GetValidPhone(this string phone)
+        public static PhoneNumber GetValidPhone(this string phone, ILog log)
         {
             if (string.IsNullOrEmpty(phone))
                 return null;
@@ -20,8 +21,9 @@ namespace Lykke.Service.SmsSender.Extensions
                     ? validPhone
                     : null;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                log.WriteError(nameof(GetValidPhone),  new {phone}, e);
                 return null;
             }
         }

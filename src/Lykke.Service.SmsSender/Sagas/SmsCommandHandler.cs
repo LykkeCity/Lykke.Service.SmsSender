@@ -44,7 +44,7 @@ namespace Lykke.Service.SmsSender.Sagas
         {
             _log.WriteInfo(nameof(ProcessSmsCommand), new { Phone = command.Phone.SanitizePhone() }, "Processing sms");
 
-            var phone = command.Phone.GetValidPhone();
+            var phone = command.Phone.GetValidPhone(_log);
 
             if (phone != null)
             {

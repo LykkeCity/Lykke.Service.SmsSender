@@ -38,7 +38,7 @@ namespace Lykke.Service.SmsSender.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.GetError());
 
-            var phone = model.Phone.GetValidPhone();
+            var phone = model.Phone.GetValidPhone(_log);
 
             if (phone == null)
             {
