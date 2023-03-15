@@ -93,7 +93,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
                 await Task.Delay(1000);
             }
 
-            _log.WriteWarning(nameof(SendSmsAsync), new { Id = commandId }, "First-level retries of SMS sendind are exhausted");
+            _log.WriteWarning(nameof(SendSmsAsync), new { Id = commandId }, "First-level retries of SMS sending are exhausted");
 
             return null;
         }

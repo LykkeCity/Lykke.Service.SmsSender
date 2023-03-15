@@ -55,7 +55,7 @@ namespace Lykke.Service.SmsSender.Sagas
                 {
                     _log.WriteWarning(nameof(ProcessSmsCommand),
                     new { CountryCode = countryCode },
-                    $"Country {countryCode} is blocked in the settings. SMS sending to the phone {command.Phone.SanitizePhone()} will be abroted");
+                    $"Country {countryCode} is blocked in the settings. SMS sending to the phone {command.Phone.SanitizePhone()} will be aborted");
 
                     return CommandHandlingResult.Ok();
                 }
