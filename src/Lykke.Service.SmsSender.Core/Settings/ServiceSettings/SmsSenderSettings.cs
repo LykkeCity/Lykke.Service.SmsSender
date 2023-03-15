@@ -21,6 +21,6 @@ namespace Lykke.Service.SmsSender.Core.Settings.ServiceSettings
         public TimeSpan SmsRetryTimeout { get; set; }
         public TimeSpan SmsSendDelay { get; set; }
         [Optional]
-        public ISet<string> BlockedCountries { get; set; } = new HashSet<string>();
+        public List<string> BlockedCountries { get; set; } = new List<string>();
     }
 }
