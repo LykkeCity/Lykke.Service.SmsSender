@@ -11,6 +11,6 @@ namespace Lykke.Service.SmsSender.Core.Services
         /// <param name="message">mmessage to send</param>
         /// <param name="countryCode">countryCode of the phone number</param>
         /// <returns>message id</returns>
-        Task<string> SendSmsAsync(string phone, string message, string countryCode);
+        Task<string> SendSmsAsync(string commandId, string phone, string message, string countryCode);
     }
 }

@@ -26,15 +26,15 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
             _log = log.CreateComponentScope(nameof(NexmoSmsSender));
         }
 
-        public async Task<string> SendSmsAsync(string phone, string message, string countryCode)
+        public async Task<string> SendSmsAsync(string commandId, string phone, string message, string countryCode)
         {
             int index = 0;
-            while (++index <= 5)
+            while (++index <= 3)
             {
                 try
                 {
                     var sw = new Stopwatch();
-                    _log.WriteInfo(nameof(SendSmsAsync), new {Phone = phone.SanitizePhone(), CountryCode = countryCode},
+                    _log.WriteInfo(nameof(SendSmsAsync), new {Id = commandId, Phone = phone.SanitizePhone(), CountryCode = countryCode},
                         $"Sending sms to nexmo endpoint {_settings.BaseUrl}/sms/json");
 
                     sw.Start();
@@ -52,7 +52,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
 
                     sw.Stop();
 
-                    _log.WriteInfo(nameof(SendSmsAsync), new {messagesCount = response.MessagesCount, ElapsedMsec = sw.ElapsedMilliseconds },
+                    _log.WriteInfo(nameof(SendSmsAsync), new {Id = commandId, messagesCount = response.MessagesCount, ElapsedMsec = sw.ElapsedMilliseconds },
                         $"Sms has been sent to nexmo endpoint {_settings.BaseUrl}/sms/json");
 
                     if (response.MessagesCount > 0)
@@ -71,19 +71,29 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Nexmo
                                 errors.FirstOrDefault(item => item.Status == NexmoStatus.PartnerQuotaExceeded);
 
                             if (notEnoughFunds != null)
-                                _log.WriteError(nameof(SendSmsAsync), notEnoughFunds);
+                                _log.WriteWarning(nameof(SendSmsAsync), new { Id = commandId, Error = notEnoughFunds }, "Not enough funds on Nexmo provider");
                             else
-                                _log.WriteWarning(nameof(SendSmsAsync), errors, "error sending sms");
+                                _log.WriteWarning(nameof(SendSmsAsync), new { Id = commandId, Errors = errors }, "Error sending SMS");
                         }
 
                         return response.Messages.FirstOrDefault(item => item.Status == NexmoStatus.Ok)?.MessageId;
                     }
+                    else
+                    {
+                        _log.WriteWarning(nameof(SendSmsAsync), new { Id = commandId }, "Unexpected messages count in Nexmo response");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    _log.WriteWarning(nameof(SendSmsAsync), ex.Message, "nexmo: error sending sms", ex);
+                    _log.WriteWarning(nameof(SendSmsAsync), new { Id = commandId }, "Error sending SMS", ex);
                 }
+
+                _log.WriteWarning(nameof(SendSmsAsync), new { Id = commandId }, "Failed to send SMS via Nexmo. Will be retried in 1 second");
+
+                await Task.Delay(1000);
             }
+
+            _log.WriteWarning(nameof(SendSmsAsync), new { Id = commandId }, "First-level retries of SMS sending are exhausted");
 
             return null;
         }

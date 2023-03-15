@@ -23,7 +23,7 @@ namespace Lykke.Service.SmsSender.Services.SmsSenders.Twilio
             _log = log.CreateComponentScope(nameof(TwilioSmsSender));
         }
 
-        public async Task<string> SendSmsAsync(string phone, string message, string countryCode)
+        public async Task<string> SendSmsAsync(string commandId, string phone, string message, string countryCode)
         {
             try
             {

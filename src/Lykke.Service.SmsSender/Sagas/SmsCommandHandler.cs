@@ -49,16 +49,30 @@ namespace Lykke.Service.SmsSender.Sagas
             if (phone != null)
             {
                 var phoneUtils = PhoneNumberUtil.GetInstance();
-                string countryCode = phoneUtils.GetRegionCodeForCountryCode(phone.CountryCode);
+                var countryCode = phoneUtils.GetRegionCodeForCountryCode(phone.CountryCode);
+
+                if (_smsSettings.BlockedCountries.Contains(countryCode))
+                {
+                    _log.WriteWarning(nameof(ProcessSmsCommand),
+                    new { CountryCode = countryCode },
+                    $"Country {countryCode} is blocked in the settings. SMS sending to the phone {command.Phone.SanitizePhone()} will be aborted");
+
+                    return CommandHandlingResult.Ok();
+                }
+
                 var provider = await _settingsService.GetProviderByCountryAsync(countryCode);
 
-                string id = await _smsRepository.AddAsync(new SmsMessage
+                var id = await _smsRepository.AddAsync(new SmsMessage
                 {
                     CountryCode = countryCode,
                     Message = command.Message,
                     Phone = command.Phone,
                     Provider = provider
                 });
+
+                _log.WriteInfo(nameof(ProcessSmsCommand), 
+                    new { Id = id, CountryCode = countryCode, Provider = provider.GetType().Name }, 
+                    "Country code and provider has been determined for the SMS");
 
                 eventPublisher.PublishEvent(new SmsProviderProcessed
                 {
@@ -104,7 +118,7 @@ namespace Lykke.Service.SmsSender.Sagas
 
             try
             {
-                string messageId = await sender.SendSmsAsync(command.Phone, command.Message, command.CountryCode);
+                string messageId = await sender.SendSmsAsync(command.Id, command.Phone, command.Message, command.CountryCode);
 
                 if (!string.IsNullOrEmpty(messageId))
                 {
@@ -115,11 +129,14 @@ namespace Lykke.Service.SmsSender.Sagas
                 {
                     await _smsRepository.DeleteAsync(command.Id, messageId);
                     _log.WriteInfo(nameof(SendSmsCommand), new { command.Id }, "Sms message has been deleted");
+                    await _smsProviderInfoRepository.AddAsync(command.Provider, command.CountryCode, SmsDeliveryStatus.Failed);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _log.WriteWarning(nameof(SendSmsCommand), new { command.Id }, $"Failed to send sms. It will be retried in {_smsSettings.SmsSendDelay}", e);
                 await _smsProviderInfoRepository.AddAsync(command.Provider, command.CountryCode, SmsDeliveryStatus.Failed);
+
                 return CommandHandlingResult.Fail(_smsSettings.SmsSendDelay);
             }
 
