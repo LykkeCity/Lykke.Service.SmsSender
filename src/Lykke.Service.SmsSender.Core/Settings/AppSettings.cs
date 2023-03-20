@@ -7,5 +7,10 @@ namespace Lykke.Service.SmsSender.Core.Settings
     {
         public SmsSenderSettings SmsSenderService { get; set; }
         public SlackNotificationsSettings SlackNotifications { get; set; }
+
+        public void Validate()
+        {
+            SmsSenderService.Validate();
+        }
     }
 }

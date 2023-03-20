@@ -58,6 +58,8 @@ namespace Lykke.Service.SmsSender
                 var builder = new ContainerBuilder();
                 var appSettings = Configuration.LoadSettings<AppSettings>();
 
+                appSettings.CurrentValue.Validate();
+
                 Log = CreateLogWithSlack(services, appSettings);
 
                 builder.RegisterModule(new ServiceModule(appSettings.Nested(x => x.SmsSenderService), Environment, Log));

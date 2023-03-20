@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
@@ -51,11 +52,20 @@ namespace Lykke.Service.SmsSender.Sagas
                 var phoneUtils = PhoneNumberUtil.GetInstance();
                 var countryCode = phoneUtils.GetRegionCodeForCountryCode(phone.CountryCode);
 
+                if (_smsSettings.AllowedCountries.Any() && !_smsSettings.AllowedCountries.Contains(countryCode))
+                {
+                    _log.WriteWarning(nameof(ProcessSmsCommand),
+                        new { CountryCode = countryCode },
+                        $"Country {countryCode} is not allowed in the settings. SMS sending to the phone {command.Phone.SanitizePhone()} will be aborted");
+
+                    return CommandHandlingResult.Ok();
+                }
+
                 if (_smsSettings.BlockedCountries.Contains(countryCode))
                 {
                     _log.WriteWarning(nameof(ProcessSmsCommand),
-                    new { CountryCode = countryCode },
-                    $"Country {countryCode} is blocked in the settings. SMS sending to the phone {command.Phone.SanitizePhone()} will be aborted");
+                        new { CountryCode = countryCode },
+                        $"Country {countryCode} is blocked in the settings. SMS sending to the phone {command.Phone.SanitizePhone()} will be aborted");
 
                     return CommandHandlingResult.Ok();
                 }
