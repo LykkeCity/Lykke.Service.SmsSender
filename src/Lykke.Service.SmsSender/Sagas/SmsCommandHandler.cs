@@ -81,7 +81,7 @@ namespace Lykke.Service.SmsSender.Sagas
                 });
 
                 _log.WriteInfo(nameof(ProcessSmsCommand), 
-                    new { Id = id, CountryCode = countryCode, Provider = provider.GetType().Name }, 
+                    new { Id = id, CountryCode = countryCode, Provider = provider }, 
                     "Country code and provider has been determined for the SMS");
 
                 eventPublisher.PublishEvent(new SmsProviderProcessed
@@ -166,16 +166,36 @@ namespace Lykke.Service.SmsSender.Sagas
         public async Task<CommandHandlingResult> Handle(SmsNotDeliveredCommand command, IEventPublisher eventPublisher)
         {
             _log.WriteWarning(nameof(SmsNotDeliveredCommand), new { Phone = command.Message.Phone.SanitizePhone(), command.Message.Id, command.Message.MessageId,
-                command.Message.Provider, command.Message.CountryCode }, $"Sms delivery failed: {command.Error}");
+                command.Message.Provider, command.Message.CountryCode }, $"Sms provider notified us that delivery has been failed: {command.Error}");
 
             if (command.Message.IsExpired(_smsSettings.SmsRetryTimeout))
             {
+                _log.WriteWarning(nameof(SmsNotDeliveredCommand), new
+                {
+                    Phone = command.Message.Phone.SanitizePhone(),
+                    command.Message.Id,
+                    command.Message.MessageId,
+                    command.Message.Provider,
+                    command.Message.CountryCode
+                }, $"Sms is expired. Retries will be stopped");
+
                 await _smsProviderInfoRepository.AddAsync(command.Message.Provider, command.Message.CountryCode, SmsDeliveryStatus.Failed);
                 await _smsRepository.DeleteAsync(command.Message.Id, command.Message.MessageId);
             }
             else
             {
-                eventPublisher.PublishEvent(new SmsMessageDeliveryFailed{ Message = command.Message});
+                _log.WriteWarning(nameof(SmsNotDeliveredCommand), new
+                {
+                    Phone = command.Message.Phone.SanitizePhone(),
+                    command.Message.Id,
+                    command.Message.MessageId,
+                    command.Message.Provider,
+                    command.Message.CountryCode
+                }, $"Sms sending will be retried in {_smsSettings.SmsSendDelay}");
+
+                await Task.Delay(_smsSettings.SmsSendDelay);
+
+                eventPublisher.PublishEvent(new SmsMessageDeliveryFailed{Message = command.Message});
             }
 
             return CommandHandlingResult.Ok();
