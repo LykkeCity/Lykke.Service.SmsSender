@@ -54,12 +54,26 @@ namespace Lykke.Service.SmsSender.Controllers
 
             try
             {
-                _cqrsEngine.SendCommand(new ProcessSmsCommand {Message = model.Message, Phone = model.Phone.Replace(" ","").Trim()}, "sms", "sms");
+                _cqrsEngine.SendCommand(new ProcessSmsCommand 
+                {
+                    Message = model.Message, 
+                    Phone = model.Phone.Replace(" ","").Trim(),
+                    Reason = model.Reason,
+                    OuterRequestId = model.OuterRequestId
+                }, "sms", "sms");
                 return Ok();
             }
             catch (Exception ex)
             {
-                _log.WriteError(nameof(SendSms), new { Phone = model.Phone.SanitizePhone()}, ex);
+                _log.WriteError(
+                    nameof(SendSms), 
+                    new 
+                    { 
+                        Phone = model.Phone.SanitizePhone(), 
+                        Reason = model.Reason,
+                        OuterRequestId = model.OuterRequestId
+                    }, 
+                    ex);
                 return BadRequest(ErrorResponse.Create("Technical problems"));
             }
         }
