@@ -9,28 +9,30 @@ namespace Lykke.Service.SmsSender.Client
 {
     public class SmsSenderClient : ISmsSenderClient, IDisposable
     {
-        private readonly ILog _log;
         private SmsSenderAPI _service;
 
-        public SmsSenderClient(string serviceUrl, ILog log)
+        public SmsSenderClient(string serviceUrl)
         {
-            _log = log;
             _service = new SmsSenderAPI(new Uri(serviceUrl));
         }
 
         public void Dispose()
         {
-            if (_service == null)
-                return;
-            _service.Dispose();
+            _service?.Dispose();
             _service = null;
         }
 
-        public async Task SendSmsAsync(string phone, string message)
+        public async Task SendSmsAsync(string phone, string message, string reason, string outerRequestId)
         {
             try
             {
-                var result = await _service.SendAsync(new SmsModel{Message = message, Phone = phone});
+                var result = await _service.SendAsync(new SmsModel
+                {
+                    Message = message,
+                    Phone = phone,
+                    Reason = reason,
+                    OuterRequestId = outerRequestId
+                });
                 
                 if (result != null && result is ErrorResponse resp)
                     throw new SmsServiceException(resp.ErrorMessage);
