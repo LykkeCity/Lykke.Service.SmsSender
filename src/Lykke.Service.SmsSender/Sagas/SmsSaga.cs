@@ -50,7 +50,7 @@ namespace Lykke.Service.SmsSender.Sagas
             _log.WriteInfo(nameof(SmsMessageDeliveryFailed), new
             {
                 Phone = evt.Message.Phone.SanitizePhone(), evt.Message.Id, evt.Message.Provider, evt.Message.CountryCode
-            }, $"Retrying sms delivery. Sending using {evt.Message.Provider.ToString()}, country code: {evt.Message.CountryCode}");
+            }, $"Retrying sms delivery. Sending using {evt.Message.Provider}, country code: {evt.Message.CountryCode}");
 
             var sendSmsCommand = new SendSmsCommand
             {
