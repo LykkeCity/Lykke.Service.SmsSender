@@ -16,5 +16,9 @@ namespace Lykke.Service.SmsSender.Sagas.Commands
         public string CountryCode { get; set; }
         [ProtoMember(5)]
         public string Id { get; set; }
+        [ProtoMember(6)]
+        public string Reason { get; set; }
+        [ProtoMember(7)]
+        public string OuterRequestId { get; set; }
     }
 }

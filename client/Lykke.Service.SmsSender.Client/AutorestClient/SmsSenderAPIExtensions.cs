@@ -69,5 +69,24 @@ namespace Lykke.Service.SmsSender.Client.AutorestClient
                 }
             }
 
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            public static void StatisticsGet(this ISmsSenderAPI operations)
+            {
+                operations.StatisticsGetAsync().GetAwaiter().GetResult();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task StatisticsGetAsync(this ISmsSenderAPI operations, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                (await operations.StatisticsGetWithHttpMessagesAsync(null, cancellationToken).ConfigureAwait(false)).Dispose();
+            }
+
     }
 }

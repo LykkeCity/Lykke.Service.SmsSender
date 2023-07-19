@@ -8,5 +8,7 @@ namespace Lykke.Service.SmsSender.Models
         public string Phone { get; set; }
         [Required]
         public string Message { get; set; }
+        public string Reason { get; set; }
+        public string OuterRequestId { get; set; }
     }
 }
