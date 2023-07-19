@@ -43,7 +43,15 @@ namespace Lykke.Service.SmsSender.Sagas
 
         public async Task<CommandHandlingResult> Handle(ProcessSmsCommand command, IEventPublisher eventPublisher)
         {
-            _log.WriteInfo(nameof(ProcessSmsCommand), new { Phone = command.Phone.SanitizePhone() }, "Processing sms");
+            _log.WriteInfo(
+                nameof(ProcessSmsCommand),
+                new
+                {
+                    Phone = command.Phone.SanitizePhone(),
+                    Reason = command.Reason,
+                    OuterRequestId = command.OuterRequestId
+                },
+                "Processing sms");
 
             var phone = command.Phone.GetValidPhone(_log);
 
@@ -54,8 +62,15 @@ namespace Lykke.Service.SmsSender.Sagas
 
                 if (_smsSettings.AllowedCountries.Any() && !_smsSettings.AllowedCountries.Contains(countryCode))
                 {
-                    _log.WriteWarning(nameof(ProcessSmsCommand),
-                        new { CountryCode = countryCode },
+                    _log.WriteWarning(
+                        nameof(ProcessSmsCommand),
+                        new 
+                        { 
+                            CountryCode = countryCode,
+                            Phone = command.Phone.SanitizePhone(),
+                            Reason = command.Reason,
+                            OuterRequestId = command.OuterRequestId
+                        },
                         $"Country {countryCode} is not allowed in the settings. SMS sending to the phone {command.Phone.SanitizePhone()} will be aborted");
 
                     return CommandHandlingResult.Ok();
@@ -63,8 +78,15 @@ namespace Lykke.Service.SmsSender.Sagas
 
                 if (_smsSettings.BlockedCountries.Contains(countryCode))
                 {
-                    _log.WriteWarning(nameof(ProcessSmsCommand),
-                        new { CountryCode = countryCode },
+                    _log.WriteWarning(
+                        nameof(ProcessSmsCommand),
+                        new 
+                        { 
+                            CountryCode = countryCode,
+                            Phone = command.Phone.SanitizePhone(),
+                            Reason = command.Reason,
+                            OuterRequestId = command.OuterRequestId
+                        },
                         $"Country {countryCode} is blocked in the settings. SMS sending to the phone {command.Phone.SanitizePhone()} will be aborted");
 
                     return CommandHandlingResult.Ok();
@@ -80,8 +102,17 @@ namespace Lykke.Service.SmsSender.Sagas
                     Provider = provider
                 });
 
-                _log.WriteInfo(nameof(ProcessSmsCommand), 
-                    new { Id = id, CountryCode = countryCode, Provider = provider.GetType().Name }, 
+                _log.WriteInfo(
+                    nameof(ProcessSmsCommand), 
+                    new 
+                    { 
+                        Id = id, 
+                        CountryCode = countryCode, 
+                        Provider = provider.GetType().Name,
+                        Phone = command.Phone.SanitizePhone(),
+                        Reason = command.Reason,
+                        OuterRequestId = command.OuterRequestId
+                    }, 
                     "Country code and provider has been determined for the SMS");
 
                 eventPublisher.PublishEvent(new SmsProviderProcessed
@@ -90,7 +121,9 @@ namespace Lykke.Service.SmsSender.Sagas
                     Message = command.Message,
                     Provider = provider,
                     CountryCode = countryCode,
-                    Id = id
+                    Id = id,
+                    Reason = command.Reason,
+                    OuterRequestId = command.OuterRequestId
                 });
             }
 
@@ -101,30 +134,32 @@ namespace Lykke.Service.SmsSender.Sagas
         {
             var message = await _smsRepository.GetAsync(command.Id);
 
-            var msg = new
+            var logContext = new
             {
                 Phone = command.Phone.SanitizePhone(),
                 command.Id,
                 command.Provider,
-                command.CountryCode
+                command.CountryCode,
+                command.Reason,
+                command.OuterRequestId
             };
 
             if (message == null)
             {
-                _log.WriteInfo(nameof(SendSmsCommand), msg, $"Sms message with messageId = {command.Id} not found");
+                _log.WriteInfo(nameof(SendSmsCommand), logContext, $"Sms message with messageId = {command.Id} not found");
                 return CommandHandlingResult.Ok();
             }
 
             if (message.IsExpired(_smsSettings.SmsRetryTimeout))
             {
                 await _smsRepository.DeleteAsync(message.Id, message.MessageId);
-                _log.WriteInfo(nameof(SendSmsCommand), msg, "Sms message expired and has been deleted");
+                _log.WriteInfo(nameof(SendSmsCommand), logContext, "Sms message expired and has been deleted");
                 return CommandHandlingResult.Ok();
             }
 
             var sender = _smsSenderFactory.GetSender(command.Provider);
 
-            _log.WriteInfo(nameof(SendSmsCommand), msg, "Sending sms");
+            _log.WriteInfo(nameof(SendSmsCommand), logContext, "Sending sms");
 
             try
             {
@@ -133,18 +168,44 @@ namespace Lykke.Service.SmsSender.Sagas
                 if (!string.IsNullOrEmpty(messageId))
                 {
                     await _smsRepository.SetMessageIdAsync(messageId, command.Id);
-                    _log.WriteInfo(nameof(SendSmsCommand), new { command.Id, MessageId = messageId}, "Message has been sent");
+                    _log.WriteInfo(
+                        nameof(SendSmsCommand), 
+                        new 
+                        { 
+                            command.Id, 
+                            MessageId = messageId, 
+                            Reason = command.Reason,
+                            OuterRequestId = command.OuterRequestId
+                        }, 
+                        "Message has been sent");
                 }
                 else
                 {
                     await _smsRepository.DeleteAsync(command.Id, messageId);
-                    _log.WriteInfo(nameof(SendSmsCommand), new { command.Id }, "Sms message has been deleted");
+                    _log.WriteInfo(
+                        nameof(SendSmsCommand), 
+                        new 
+                        { 
+                            command.Id, 
+                            Reason = command.Reason,
+                            OuterRequestId = command.OuterRequestId
+                        }, 
+                        "Sms message has been deleted");
                     await _smsProviderInfoRepository.AddAsync(command.Provider, command.CountryCode, SmsDeliveryStatus.Failed);
                 }
             }
             catch (Exception e)
             {
-                _log.WriteWarning(nameof(SendSmsCommand), new { command.Id }, $"Failed to send sms. It will be retried in {_smsSettings.SmsSendDelay}", e);
+                _log.WriteWarning(
+                    nameof(SendSmsCommand), 
+                    new 
+                    { 
+                        command.Id, 
+                        Reason = command.Reason,
+                        OuterRequestId = command.OuterRequestId
+                    }, 
+                    $"Failed to send sms. It will be retried in {_smsSettings.SmsSendDelay}", 
+                    e);
                 await _smsProviderInfoRepository.AddAsync(command.Provider, command.CountryCode, SmsDeliveryStatus.Failed);
 
                 return CommandHandlingResult.Fail(_smsSettings.SmsSendDelay);

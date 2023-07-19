@@ -44,6 +44,14 @@
             The cancellation token.
             </param>
         </member>
+        <member name="M:Lykke.Service.SmsSender.Client.AutorestClient.ISmsSenderAPI.StatisticsGetWithHttpMessagesAsync(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Threading.CancellationToken)">
+            <param name='customHeaders'>
+            The headers that will be added to request.
+            </param>
+            <param name='cancellationToken'>
+            The cancellation token.
+            </param>
+        </member>
         <member name="M:Lykke.Service.SmsSender.Client.AutorestClient.Models.ErrorResponse.#ctor">
             <summary>
             Initializes a new instance of the ErrorResponse class.
@@ -123,7 +131,7 @@
             Initializes a new instance of the SmsModel class.
             </summary>
         </member>
-        <member name="M:Lykke.Service.SmsSender.Client.AutorestClient.Models.SmsModel.#ctor(System.String,System.String)">
+        <member name="M:Lykke.Service.SmsSender.Client.AutorestClient.Models.SmsModel.#ctor(System.String,System.String,System.String,System.String)">
             <summary>
             Initializes a new instance of the SmsModel class.
             </summary>
@@ -136,13 +144,13 @@
             <summary>
             </summary>
         </member>
-        <member name="M:Lykke.Service.SmsSender.Client.AutorestClient.Models.SmsModel.Validate">
+        <member name="P:Lykke.Service.SmsSender.Client.AutorestClient.Models.SmsModel.Reason">
             <summary>
-            Validate the object.
             </summary>
-            <exception cref="T:Microsoft.Rest.ValidationException">
-            Thrown if validation fails
-            </exception>
+        </member>
+        <member name="P:Lykke.Service.SmsSender.Client.AutorestClient.Models.SmsModel.OuterRequestId">
+            <summary>
+            </summary>
         </member>
         <member name="P:Lykke.Service.SmsSender.Client.AutorestClient.SmsSenderAPI.BaseUri">
             <summary>
@@ -253,6 +261,20 @@
             A response object containing the response body and response headers.
             </return>
         </member>
+        <member name="M:Lykke.Service.SmsSender.Client.AutorestClient.SmsSenderAPI.StatisticsGetWithHttpMessagesAsync(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Threading.CancellationToken)">
+            <param name='customHeaders'>
+            Headers that will be added to request.
+            </param>
+            <param name='cancellationToken'>
+            The cancellation token.
+            </param>
+            <exception cref="T:Microsoft.Rest.HttpOperationException">
+            Thrown when the operation returned an invalid status code
+            </exception>
+            <return>
+            A response object containing the response body and response headers.
+            </return>
+        </member>
         <member name="T:Lykke.Service.SmsSender.Client.AutorestClient.SmsSenderAPIExtensions">
             <summary>
             Extension methods for SmsSenderAPI.
@@ -289,6 +311,19 @@
             The operations group for this extension method.
             </param>
             <param name='model'>
+            </param>
+            <param name='cancellationToken'>
+            The cancellation token.
+            </param>
+        </member>
+        <member name="M:Lykke.Service.SmsSender.Client.AutorestClient.SmsSenderAPIExtensions.StatisticsGet(Lykke.Service.SmsSender.Client.AutorestClient.ISmsSenderAPI)">
+            <param name='operations'>
+            The operations group for this extension method.
+            </param>
+        </member>
+        <member name="M:Lykke.Service.SmsSender.Client.AutorestClient.SmsSenderAPIExtensions.StatisticsGetAsync(Lykke.Service.SmsSender.Client.AutorestClient.ISmsSenderAPI,System.Threading.CancellationToken)">
+            <param name='operations'>
+            The operations group for this extension method.
             </param>
             <param name='cancellationToken'>
             The cancellation token.

@@ -18,7 +18,18 @@ namespace Lykke.Service.SmsSender.Sagas
         
         public async Task Handle(SmsProviderProcessed evt, ICommandSender commandSender)
         {
-            _log.WriteInfo(nameof(SmsProviderProcessed), new { Phone = evt.Phone.SanitizePhone(), evt.Id, evt.Provider, evt.CountryCode}, "Sms processed");
+            _log.WriteInfo(
+                nameof(SmsProviderProcessed),
+                new
+                {
+                    Phone = evt.Phone.SanitizePhone(),
+                    evt.Id,
+                    evt.Provider,
+                    evt.CountryCode,
+                    evt.Reason,
+                    evt.OuterRequestId
+                },
+                "Sms processed");
 
             var sendSmsCommand = new SendSmsCommand
             {
@@ -26,7 +37,9 @@ namespace Lykke.Service.SmsSender.Sagas
                 Message = evt.Message,
                 Provider = evt.Provider,
                 CountryCode = evt.CountryCode,
-                Id = evt.Id
+                Id = evt.Id,
+                Reason = evt.Reason,
+                OuterRequestId = evt.OuterRequestId
             };
 
             commandSender.SendCommand(sendSmsCommand, "sms");
